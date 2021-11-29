@@ -68,6 +68,7 @@ jobs:
           
       - name: Build
         run: |
+          chmod +x gradlew
           ./gradlew build -x :app:lintDebug
           mkdir out/
           ./ccache -s
