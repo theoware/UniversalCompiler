@@ -70,9 +70,29 @@ jobs:
       - name: Stop gradle daemon
         run: ./gradlew --stop
 
+      - name: Unzip files
+        run: |
+          mkdir -p out/app-debug
+          mkdir -p out/stub-release
+          mkdir -p out/app-release
+          unzip out/app-debug.apk -d out/app-debug
+          unzip out/stub-release.apk -d out/stub-release
+          unzip out/app-release.apk -d out/app-release
+
       # Only upload artifacts built on Linux
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.sha }}
-          path: out
+          name: ${{ github.sha }}_app-release
+          path: out/app-release
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.sha }}_stub-release
+          path: out/stub-release
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.sha }}_app-debug
+          path: out/app-debug
+
