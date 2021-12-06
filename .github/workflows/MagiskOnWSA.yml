@@ -1,7 +1,5 @@
 name: MagiskOnWSA
 on:
-  push:
-  pull_request:
   workflow_dispatch:
     inputs:
       magisk_apk:
