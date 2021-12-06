@@ -1,0 +1,36 @@
+name: RoundedTB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build-windows
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+          submodules: recursive
+          repository: torchgm/RoundedTB
+          
+    - name: Set up MSBuild
+      uses: microsoft/setup-msbuild@v1
+      
+    - name: NuGet Restore
+      run: |
+        cd ${{ github.workspace }}
+        nuget restore RoundedTB.sln
+      
+    - name: Build
+      run: |
+        cd ${{ github.workspace }}
+        msbuild "-property:Configuration=Release" -t:RoundedTB
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: rtb-artifacts
+        path: |
+          .\RoundedTB\bin\Release\
