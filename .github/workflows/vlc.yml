@@ -13,21 +13,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get upgrade -y
-          sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64-tools -y
-          sudo apt-get install lua5.2 libtool automake autoconf autopoint make gettext pkg-config -y
-          sudo apt-get install qtbase5-dev-tools qt5-default git subversion cmake cvs -y
-          sudo apt-get install wine64-development-tools libwine-dev zip p7zip nsis bzip2 -y
-          sudo apt-get install yasm ragel ant default-jdk protobuf-compiler dos2unix -y
-          sudo apt-get install subversion yasm cvs cmake ragel autopoint -y
-          
+          sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64-tools lua5.2 libtool automake autoconf autopoint make gettext pkg-config qtbase5-dev-tools qt5-default git subversion cmake cvs wine64-development-tools libwine-dev zip p7zip nsis bzip2 yasm ragel ant default-jdk protobuf-compiler dos2unix subversion yasm cvs cmake ragel autopoint
+
       - name: Checkout
         run: |
-          git clone http://git.videolan.org/git/vlc.git vlc
+          git clone http://git.videolan.org/git/vlc.git .
           
       - name: Prepare 3rd party libraries
         run: |
-          cd vlc
           mkdir -p contrib/win32
           cd contrib/win32
           ../bootstrap --host=x86_64-w64-mingw32
@@ -38,7 +31,6 @@ jobs:
         
       - name: Configuring the build
         run: |
-          cd vlc
           ./bootstrap
           mkdir win32 && cd win32
           export PKG_CONFIG_LIBDIR=$HOME/vlc/contrib/x86_64-w64-mingw32/lib/pkgconfig
@@ -46,13 +38,12 @@ jobs:
 
       - name: Building VLC
         run: |
-          cd vlc
           make
           make package-win32
 
       - name: debug
         run: |
-          ls -R vlc
+          ls -R .
   
       - name: Upload VLC
         uses: actions/upload-artifact@v2
