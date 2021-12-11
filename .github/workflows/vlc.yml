@@ -1,0 +1,59 @@
+name: VLC media player
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build VLC media player
+    runs-on: ubuntu-latest
+    
+    steps:
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64-tools -y
+          sudo apt-get install lua5.2 libtool automake autoconf autopoint make gettext pkg-config -y
+          sudo apt-get install qt4-dev-tools qt5-default git subversion cmake cvs -y
+          sudo apt-get install wine64-development-tools libwine-dev zip p7zip nsis bzip2 -y
+          sudo apt-get install yasm ragel ant default-jdk protobuf-compiler dos2unix -y
+          sudo apt-get install subversion yasm cvs cmake ragel autopoint -y
+          
+      - name: Checkout
+        run: |
+          git clone http://git.videolan.org/git/vlc.git vlc
+          
+      - name: Prepare 3rd party libraries
+        run: |
+          cd vlc
+          mkdir -p contrib/win32
+          cd contrib/win32
+          ../bootstrap --host=x86_64-w64-mingw32
+          make fetch
+          make
+          rm -f ../i686-w64-mingw32/bin/moc ../i686-w64-mingw32/bin/uic ../i686-w64-mingw32/bin/rcc
+          ln -sf 'x86_64-w64-mingw32' ../i686-w64-mingw32
+        
+      - name: Configuring the build
+        run: |
+          cd vlc
+          ./bootstrap
+          mkdir win32 && cd win32
+          export PKG_CONFIG_LIBDIR=$HOME/vlc/contrib/x86_64-w64-mingw32/lib/pkgconfig
+          ../extras/package/win32/configure.sh --host=x86_64-w64-mingw32 --build=x86_64-pc-linux-gnu
+
+      - name: Building VLC
+        run: |
+          cd vlc
+          make
+          make package-win32
+
+      - name: debug
+        run: |
+          ls -R vlc
+  
+      - name: Upload VLC
+        uses: actions/upload-artifact@v2
+        with:
+          name: vlc
+          path: './vlc-*-*-*/'
