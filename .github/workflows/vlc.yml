@@ -15,11 +15,11 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64-tools lua5.2 libtool automake autoconf autopoint make gettext pkg-config qtbase5-dev-tools qt5-default git subversion cmake cvs wine64-development-tools libwine-dev zip p7zip nsis bzip2 yasm ragel ant default-jdk protobuf-compiler dos2unix subversion yasm cvs cmake ragel autopoint
 
-      - name: Checkout
+      - name: Get the source code
         run: |
           git clone http://git.videolan.org/git/vlc.git .
           
-      - name: Prepare 3rd party libraries
+      - name: Prepare 3rd party libraries manually built
         run: |
           mkdir -p contrib/win32
           cd contrib/win32
