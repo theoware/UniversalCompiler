@@ -23,7 +23,7 @@ jobs:
         run: |
           mkdir -p contrib/win32
           cd contrib/win32
-          ../bootstrap --host=HOST-TRIPLET
+          ../bootstrap --host=x86_64-w64-mingw32
           make prebuilt
           rm -f ../i686-w64-mingw32/bin/moc ../i686-w64-mingw32/bin/uic ../i686-w64-mingw32/bin/rcc
           ln -sf 'x86_64-w64-mingw32' ../i686-w64-mingw32
