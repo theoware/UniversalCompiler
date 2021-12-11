@@ -33,20 +33,8 @@ jobs:
         run: |
           bash config_image.sh && sudo bash build_image.sh
 
-      - name: debug
-        run: |
-          ls -LR
-          echo "CUT"
-          ls -LR *.iso
-          ls -LR > ls.txt
-
       - name: Upload ISO
         uses: actions/upload-artifact@v2
         with:
           name: live-image-amd64.iso
           path: './image_root/live-image-amd64.hybrid.iso'
-      - name: Upload debug
-        uses: actions/upload-artifact@v2
-        with:
-          name: debug
-          path: 'ls.txt'
