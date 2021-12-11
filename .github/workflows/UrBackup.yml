@@ -1,0 +1,56 @@
+name: UrBackup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        repository: uroni/urbackup_backend
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update 
+        sudo apt-get install libfuse-dev libcurl4-nss-dev libcrypto++-dev libzstd-dev
+
+    - name: autoconf (server)
+      run: |
+        ./switch_build.sh server
+        autoreconf --install
+
+    - name: configure (server)
+      run: ./configure --with-mountvhd
+
+    - name: make (server)
+      run: make -j$(nproc --all)
+
+    - name: autoconf (client)
+      run: |
+        ./switch_build.sh client
+        autoreconf --install
+
+    - name: configure (client)
+      run: ./configure --enable-headless
+
+    - name: make (client)
+      run: make -j$(nproc --all)
+    
+    - name: debug
+      run: |
+        ls -LR
+        echo "CUT"
+        ls -LR *.exe
+        echo "CUT"
+        ls -LR *.msi
+        ls -LR > ls.txt
+
+    - name: Upload debug
+      uses: actions/upload-artifact@v2
+      with:
+        name: debug
+        path: 'ls.txt'
