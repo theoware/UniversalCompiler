@@ -1,0 +1,52 @@
+name: UrBackup restore ISO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Create new ISO
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: uroni/urbackup_restore_cd
+        
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y live-build imagemagick
+          
+      - name: Install debian live-build
+        run: |
+          curl "https://ftp.debian.org/debian/pool/main/l/live-build/live-build_20210902_all.deb" > live-build.deb
+          sudo dpkg -i live-build.deb
+          curl "https://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2021.1.1_all.deb" > keyring.deb
+          sudo dpkg -i keyring.deb
+          
+      - name: Configure imagemagick
+        run: |
+          sudo rm /etc/ImageMagick-6/policy.xml
+        
+      - name: Build ISO
+        run: |
+          bash config_image.sh && sudo bash build_image.sh
+
+      - name: debug
+        run: |
+          ls -LR
+          echo "CUT"
+          ls -LR *.iso
+          ls -LR > ls.txt
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v2
+        with:
+          name: live-image-amd64.iso
+          path: './image_root/live-image-amd64.hybrid.iso'
+      - name: Upload debug
+        uses: actions/upload-artifact@v2
+        with:
+          name: debug
+          path: 'ls.txt'
