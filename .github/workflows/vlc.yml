@@ -13,19 +13,20 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64-tools lua5.2 libtool automake autoconf autopoint make gettext pkg-config qtbase5-dev-tools qt5-default git subversion cmake cvs wine64-development-tools libwine-dev zip p7zip nsis bzip2 yasm ragel ant default-jdk protobuf-compiler dos2unix subversion yasm cvs cmake ragel autopoint
-          sudo apt-get build-dep vlc
+          sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64-tools lua5.2 libtool automake autoconf autopoint make gettext pkg-config qtbase5-dev-tools qt5-default git subversion cmake cvs wine64-development-tools libwine-dev zip p7zip nsis bzip2 yasm ragel ant default-jdk protobuf-compiler dos2unix subversion yasm cvs cmake ragel autopoint meson
+          sudo apt-get install libluac
 
       - name: Get the source code
         run: |
           git clone http://git.videolan.org/git/vlc.git .
           
-      - name: Prepare 3rd party libraries Prebuilt 
+      - name: Prepare 3rd party libraries 
         run: |
           mkdir -p contrib/win32
           cd contrib/win32
           ../bootstrap --host=x86_64-w64-mingw32
-          make prebuilt
+          make fetch
+          make
           rm -f ../i686-w64-mingw32/bin/moc ../i686-w64-mingw32/bin/uic ../i686-w64-mingw32/bin/rcc
           ln -sf 'x86_64-w64-mingw32' ../i686-w64-mingw32
         
