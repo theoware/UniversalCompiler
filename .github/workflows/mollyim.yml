@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        repository: mollyim/mollyim-android
+        repository: theoware/mollyim-android
 
     - name: Create staging keystore
       run: echo "$MOLLY_STAGING_KEYSTORE" | base64 -d > app/staging.keystore
@@ -19,7 +19,7 @@ jobs:
         MOLLY_STAGING_KEYSTORE: ${{ secrets.MOLLY_STAGING_KEYSTORE }}
 
     - name: Clone bare repo
-      run: git clone https://github.com/mollyim/mollyim-android/ bare
+      run: git clone https://github.com/theoware/mollyim-android/ bare
 
     - name: Build Docker image
       run: docker-compose build
@@ -55,7 +55,7 @@ jobs:
       - name: Get the version
         id: get-version
         run: |
-          git clone --bare https://github.com/mollyim/mollyim-android molly
+          git clone --bare https://github.com/theoware/mollyim-android molly
           cd molly
           echo ::set-output name=VERSION::$(git describe --tags --abbrev=0)
           rm -rf ../molly
