@@ -18,6 +18,9 @@ jobs:
       env:
         MOLLY_STAGING_KEYSTORE: ${{ secrets.MOLLY_STAGING_KEYSTORE }}
 
+    - name: Clone bare repo
+      run: git clone https://github.com/mollyim/mollyim-android/ bare
+
     - name: Build Docker image
       run: docker-compose build
       working-directory: reproducible-builds
