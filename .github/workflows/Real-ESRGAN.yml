@@ -12,6 +12,8 @@ jobs:
           repository: xinntao/Real-ESRGAN
       - name: Set up Python
         uses: actions/setup-python@v2.3.1
+        with:
+          python-version: 3.8
       - name: Upgrade pip
         run: pip install pip --upgrade
       - name: Install PyTorch (cpu)
