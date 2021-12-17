@@ -28,7 +28,9 @@ jobs:
         run: rm -rf .eggs && pip install -e .
       - name: Build for distribution
         run: python setup.py sdist bdist_wheel
-      - uses: actions/upload-artifact@v2.3.1
+      - name: DEBUG
+        run: ls -R .
+      - uses: actions/upload-artifact@v2
         with:
           name: Real-ESRGAN
           path: |
