@@ -28,10 +28,8 @@ jobs:
         run: rm -rf .eggs && pip install -e .
       - name: Build for distribution
         run: python setup.py sdist bdist_wheel
-      - name: DEBUG
-        run: ls -r .
       - uses: actions/upload-artifact@v2.3.1
         with:
           name: Real-ESRGAN
-          path: debug
+          path: build
           if-no-files-found: error
