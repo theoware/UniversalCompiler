@@ -1,4 +1,4 @@
-name: mser
+name: MSEdgeReflector
 
 on: workflow_dispatch
 
