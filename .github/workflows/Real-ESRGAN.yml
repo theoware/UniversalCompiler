@@ -1,0 +1,35 @@
+name: Real-ESRGAN
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2.4.0
+        with:
+          repository: xinntao/Real-ESRGAN
+      - name: Set up Python
+        uses: actions/setup-python@v2.3.1
+      - name: Upgrade pip
+        run: pip install pip --upgrade
+      - name: Install PyTorch (cpu)
+        run: pip install torch==1.9.0+cpu torchvision==0.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+      - name: Install dependencies
+        run: |
+          pip install basicsr
+          pip install facexlib
+          pip install gfpgan
+          pip install -r requirements.txt
+      - name: Build and install
+        run: rm -rf .eggs && pip install -e .
+      - name: Build for distribution
+        run: python setup.py sdist bdist_wheel
+      - name: DEBUG
+        run: ls -r .
+      - uses: actions/upload-artifact@v2.3.1
+        with:
+          name: Real-ESRGAN
+          path: debug
+          if-no-files-found: error
