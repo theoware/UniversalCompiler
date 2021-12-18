@@ -463,7 +463,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: ${{ GITHUB.WORKFLOW }} succeeded
       - name: Send suceed message
-        if: ${{ sucess() }}
+        if: ${{ !failure() }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
