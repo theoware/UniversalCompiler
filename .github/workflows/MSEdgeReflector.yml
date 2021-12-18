@@ -48,6 +48,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: ${{ GITHUB.WORKFLOW }} succeeded
       - name: Send suceed message
+        if: ${{ sucess() }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}

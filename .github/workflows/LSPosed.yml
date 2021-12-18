@@ -29,7 +29,7 @@ jobs:
         restore-keys: |
           gradle-deps
     - name: Cache Gradle Build
-      uses: actions/cache@v2.4.0
+      uses: actions/cache@v2.1.7
       with:
         path: |
           ~/.gradle/caches/build-cache-*
@@ -37,7 +37,7 @@ jobs:
         restore-keys: |
           gradle-builds
     - name: Cache ccache
-      uses: actions/cache@v2.4.0
+      uses: actions/cache@v2.1.7
       with:
         path: ~/.ccache
         key: ccache-cache-${{ github.sha }}
@@ -109,6 +109,7 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: ${{ GITHUB.WORKFLOW }} succeeded
     - name: Send suceed message
+      if: ${{ sucess() }}
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}

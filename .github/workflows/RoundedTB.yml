@@ -34,16 +34,3 @@ jobs:
         name: rtb-artifacts
         path: |
           .\RoundedTB\bin\Release\
-    - name: Send fail message
-      if: ${{ failure() }}
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: ${{ GITHUB.WORKFLOW }} succeeded
-    - name: Send suceed message
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: ${{ GITHUB.WORKFLOW }} succeeded

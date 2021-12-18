@@ -15,6 +15,8 @@ jobs:
         
       - name: Install dependencies
         run: |
+          sudo apt-get update -y
+          sudo apt-get updgrade -y
           sudo apt-get install -y live-build imagemagick
           
       - name: Install debian live-build
@@ -45,6 +47,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: ${{ GITHUB.WORKFLOW }} succeeded
       - name: Send suceed message
+        if: ${{ sucess() }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
