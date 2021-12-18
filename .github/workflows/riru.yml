@@ -80,3 +80,16 @@ jobs:
         with:
           name: mappings
           path: "riru/build/outputs/mapping/release"
+      - name: Send fail message
+        if: ${{ failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ GITHUB_WORKFLOW }} succeeded
+      - name: Send suceed message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ GITHUB_WORKFLOW }} succeeded
