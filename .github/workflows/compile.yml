@@ -10,19 +10,15 @@ on:
         description: "git repo"
         required: true
 jobs:
-
   build:
-  
     name: "building ${{ github.event.inputs.git_repo }}"
     runs-on: ubuntu-latest
     env:
       NDK_CCACHE: ${{ github.workspace }}/ccache
       CCACHE_DIR: ${{ github.workspace }}/.ccache
-      
     steps:
-    
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.4.0
         with:
           repository: ${{ github.event.inputs.git_owner }}/${{ github.event.inputs.git_repo }}
           submodules: 'true'
@@ -40,7 +36,7 @@ jobs:
           ./ccache -o compiler_check='%compiler% -dumpmachine; %compiler% -dumpversion'
           
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.7
         with:
           path: |
             ~/.gradle/caches
@@ -50,7 +46,7 @@ jobs:
           restore-keys: ${{ runner.os }}-build-cache-
           
       - name: Cache build cache
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.7
         with:
           path: |
             ${{ github.workspace }}/.ccache
@@ -79,7 +75,20 @@ jobs:
           rm app/build/outputs/apk/*/output-metadata.json
           
       - name: Upload apk
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: app
           path: 'app/build/outputs/apk/'
+      - name: Send fail message
+        if: ${{ failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ GITHUB_WORKFLOW }} succeeded
+      - name: Send suceed message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ GITHUB_WORKFLOW }} succeeded

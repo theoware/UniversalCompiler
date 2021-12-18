@@ -2,13 +2,13 @@ name: Riru
 
 on:
   workflow_dispatch
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.4.0
         with:
           submodules: 'recursive'
           fetch-depth: 0
@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: 11
       - name: Cache Gradle Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.7
         with:
           path: |
             ~/.gradle/caches
@@ -28,7 +28,7 @@ jobs:
           restore-keys: |
             gradle-deps
       - name: Cache Gradle Build
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.7
         with:
           path: |
             ~/.gradle/caches/build-cache-*
@@ -36,7 +36,7 @@ jobs:
           restore-keys: |
             gradle-builds
       - name: Cache Ccache
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.ccache
           key: ccache-cache-${{ github.sha }}
@@ -66,17 +66,17 @@ jobs:
           unzip out/riru-*-release.zip -d riru-release
           unzip out/riru-*-debug.zip -d riru-debug
       - name: Upload release
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: ${{ steps.prepareArtifact.outputs.releaseName }}
           path: './riru-release/*'
       - name: Upload debug
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: ${{ steps.prepareArtifact.outputs.debugName }}
           path: './riru-debug/*'
       - name: Upload mappings
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: mappings
           path: "riru/build/outputs/mapping/release"
