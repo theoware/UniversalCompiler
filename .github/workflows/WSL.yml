@@ -1,0 +1,29 @@
+name: WSL
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable WSL
+        run: |
+          Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+          wsl --install
+      - name: Install Ubuntu
+        run: wsl --install -d Ubuntu
+      - name: Change default version to 2
+        run: wsl --set-default-version 2
+      - name: Compile
+        run: |
+          wsl -d Ubuntu sudo apt update
+          wsl -d Ubuntu sudo apt upgrade
+          wsl -d Ubuntu sudo apt autoremove
+      - name: Export
+        run: wsl --export Ubuntu ubuntu.tar
+      - uses: actions/upload-artifact@v2.3.1
+        with:
+          name: Ubuntu
+          path: |
+            ubuntu.tar
+          if-no-files-found: error
