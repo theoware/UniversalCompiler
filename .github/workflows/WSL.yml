@@ -6,14 +6,9 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Enable WSL
-        run: |
-          Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-      - name: Install Ubuntu
-        run: |
-          Invoke-WebRequest -Uri https://aka.ms/wslubuntu2004 -OutFile Ubuntu.appx -UseBasicParsing
-          Add-AppxPackage .\Ubuntu.appx
-          ubuntu.exe
+      - uses: Vampire/setup-wsl@v1
+        with:
+          distribution: Ubuntu-20.04
       - name: Change default version to 2
         run: wsl --set-default-version 2
       - name: Update Packages
