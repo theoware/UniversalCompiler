@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2.4.0
+    - uses: actions/checkout@main
       with:
         repository: theoware/mollyim-android
 
@@ -37,7 +37,7 @@ jobs:
       run: find reproducible-builds/outputs/apk -name "*.apk" -exec sha256sum '{}' \;
 
     - name: Upload APKs
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@main
       with:
         name: molly-apk-docker
         path: reproducible-builds/outputs/apk/**/release/*.apk
@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@main
 
       - name: Get the version
         id: get-version
@@ -73,7 +73,7 @@ jobs:
 
       - name: Upload APK staging
         if: contains(steps.get-version.outputs.VERSION, 'rc')
-        uses: actions/upload-release-asset@v1.0.1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -84,7 +84,7 @@ jobs:
 
       - name: Upload APK production
         if: "!contains(steps.get-version.outputs.VERSION, 'rc')"
-        uses: actions/upload-release-asset@v1.0.1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload APK staging FOSS
         if: contains(steps.get-version.outputs.VERSION, 'rc')
-        uses: actions/upload-release-asset@v1.0.1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -106,7 +106,7 @@ jobs:
 
       - name: Upload APK production FOSS
         if: "!contains(steps.get-version.outputs.VERSION, 'rc')"
-        uses: actions/upload-release-asset@v1.0.1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

@@ -6,11 +6,11 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@main
         with:
           repository: rcmaehl/MSEdgeRedirect
       - name: Cache tools
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@main
         id: cache
         with:
           path: |
@@ -33,7 +33,7 @@ jobs:
         run: |
           Start-Process "${env:ProgramFiles(x86)}\AutoIt3\AutoIt3.exe" "`"${env:ProgramFiles(x86)}\AutoIt3\SciTE\AutoIt3Wrapper\AutoIt3Wrapper.au3`" /NoStatus /prod /in MSEdgeRedirect.au3" -NoNewWindow -Wait
           sha256sum -b MSEdgeRedirect*.exe > checksums.sha256
-      - uses: actions/upload-artifact@v2.3.1
+      - uses: actions/upload-artifact@main
         with:
           name: MSEdgeReflector
           path: |

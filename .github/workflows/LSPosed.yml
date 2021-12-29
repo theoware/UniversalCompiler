@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@main
       with:
         repository: LSPosed/LSPosed
         submodules: 'recursive'
@@ -19,7 +19,7 @@ jobs:
       with:
         java-version: 11
     - name: Cache Gradle Dependencies
-      uses: actions/cache@v2.1.7
+      uses: actions/cache@main
       with:
         path: |
           ~/.gradle/caches
@@ -29,7 +29,7 @@ jobs:
         restore-keys: |
           gradle-deps
     - name: Cache Gradle Build
-      uses: actions/cache@v2.1.7
+      uses: actions/cache@main
       with:
         path: |
           ~/.gradle/caches/build-cache-*
@@ -37,7 +37,7 @@ jobs:
         restore-keys: |
           gradle-builds
     - name: Cache ccache
-      uses: actions/cache@v2.1.7
+      uses: actions/cache@main
       with:
         path: ~/.ccache
         key: ccache-cache-${{ github.sha }}
@@ -75,27 +75,27 @@ jobs:
         unzip core/release/LSPosed-v*-zygisk-release.zip -d LSPosed-zygisk-release
         unzip core/release/LSPosed-v*-zygisk-debug.zip -d LSPosed-zygisk-debug
     - name: Upload riru release
-      uses: actions/upload-artifact@v2.3.1
+      uses: actions/upload-artifact@main
       with:
         name: ${{ steps.prepareArtifact.outputs.riruReleaseName }}
         path: './LSPosed-riru-release/*'
     - name: Upload riru debug
-      uses: actions/upload-artifact@v2.3.1
+      uses: actions/upload-artifact@main
       with:
         name: ${{ steps.prepareArtifact.outputs.riruDebugName }}
         path: './LSPosed-riru-debug/*'
     - name: Upload zygisk release
-      uses: actions/upload-artifact@v2.3.1
+      uses: actions/upload-artifact@main
       with:
         name: ${{ steps.prepareArtifact.outputs.zygiskReleaseName }}
         path: './LSPosed-zygisk-release/*'
     - name: Upload zygisk debug
-      uses: actions/upload-artifact@v2.3.1
+      uses: actions/upload-artifact@main
       with:
         name: ${{ steps.prepareArtifact.outputs.zygiskDebugName }}
         path: './LSPosed-zygisk-debug/*'
     - name: Upload mappings
-      uses: actions/upload-artifact@v2.3.1
+      uses: actions/upload-artifact@main
       with:
         name: mappings
         path: |
