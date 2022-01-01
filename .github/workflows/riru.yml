@@ -1,7 +1,10 @@
 name: Riru
 
 on:
-  workflow_dispatch
+  push:
+    paths:
+      .github/workflows/riru.yml
+  workflow_dispatch:
 
 jobs:
   build:

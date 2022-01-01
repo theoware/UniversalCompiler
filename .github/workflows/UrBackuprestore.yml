@@ -1,6 +1,9 @@
 name: UrBackup restore ISO
 
 on:
+  push:
+    paths:
+      .github/workflows/UrBackuprestore.yml
   workflow_dispatch:
 
 jobs:

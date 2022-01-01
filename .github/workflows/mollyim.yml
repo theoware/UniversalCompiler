@@ -1,6 +1,9 @@
 name: Mollyim build
 
 on:
+  push:
+    paths:
+      .github/workflows/mollyim.yml
   workflow_dispatch:
 
 jobs:
