@@ -33,6 +33,7 @@ jobs:
       uses: actions/checkout@main
       with:
         repository: DhineshCool/cybertron
+        ref: v2.7
 
     - name: Checkout clang
       uses: actions/checkout@main
