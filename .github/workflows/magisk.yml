@@ -2,8 +2,7 @@ name: Magisk Build
 
 on:
   push:
-    paths:
-      .github/workflows/magisk.yml
+    paths: .github/workflows/magisk.yml
   workflow_dispatch:
 
 jobs:

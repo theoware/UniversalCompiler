@@ -19,8 +19,7 @@ name: DxT
 
 on:
   push:
-    paths:
-      .github/workflows/DxT.yml
+    paths: .github/workflows/DxT.yml
   workflow_dispatch:
 
 jobs:

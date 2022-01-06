@@ -1,8 +1,7 @@
 name: MagiskOnWSA
 on:
   push:
-    paths:
-      .github/workflows/MagiskOnWSA.yml
+    paths: .github/workflows/MagiskOnWSA.yml
   workflow_dispatch:
     inputs:
       magisk_apk:

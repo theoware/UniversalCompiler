@@ -2,8 +2,7 @@ name: gradle build
 
 on:
   push:
-    paths:
-      .github/workflows/compile.yml
+    paths: .github/workflows/compile.yml
   workflow_dispatch:
     inputs:
       git_owner:

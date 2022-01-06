@@ -2,8 +2,7 @@ name: MSEdgeReflector
 
 on:
   push:
-    paths:
-      .github/workflows/MSEdgeReflector.yml 
+    paths: .github/workflows/MSEdgeReflector.yml 
   workflow_dispatch:
 
 jobs:

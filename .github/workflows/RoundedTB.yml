@@ -2,8 +2,7 @@ name: RoundedTB
 
 on:
   push:
-    paths:
-      .github/workflows/RoundedTB.yml
+    paths: .github/workflows/RoundedTB.yml
   workflow_dispatch:
 
 jobs:

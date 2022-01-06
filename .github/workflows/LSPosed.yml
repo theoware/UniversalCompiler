@@ -2,8 +2,7 @@ name: LSPosed
 
 on:
   push:
-    paths:
-      .github/workflows/LSPosed.yml
+    paths: .github/workflows/LSPosed.yml
   workflow_dispatch:
 
 jobs:
