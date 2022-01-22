@@ -37,7 +37,7 @@ jobs:
     - name: Checkout clang
       uses: actions/checkout@main
       with:
-        repository: kdrag0n/proton-clang
+        repository: theoware/troton-clang
         path: clang-llvm
 
     - name: Checkout AnyKernel3
@@ -47,32 +47,23 @@ jobs:
         path: AnyKernel3
         ref: payton_cybertron
 
-    - name: Setup envoirement
-      run: sudo apt-get install zip make
-
     - name: Correct names
       run: |
-        mv clang-llvm/aarch64-linux-gnu/bin/ar clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-ar
-        mv clang-llvm/aarch64-linux-gnu/bin/as clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-as
-        mv clang-llvm/aarch64-linux-gnu/bin/ld clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-ld
-        mv clang-llvm/aarch64-linux-gnu/bin/ld.bfd clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-ld.bdf
-        mv clang-llvm/aarch64-linux-gnu/bin/ld.gold clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-ld.gold
-        mv clang-llvm/aarch64-linux-gnu/bin/nm clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-nm
-        mv clang-llvm/aarch64-linux-gnu/bin/objcopy clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-objcopy
-        mv clang-llvm/aarch64-linux-gnu/bin/objdump clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-objdump
-        mv clang-llvm/aarch64-linux-gnu/bin/ranlib clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-ranlib
-        mv clang-llvm/aarch64-linux-gnu/bin/readelf clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-readelf
-        mv clang-llvm/aarch64-linux-gnu/bin/strip clang-llvm/aarch64-linux-gnu/bin/aarch64-linux-android-strip
-        mv clang-llvm/arm-linux-gnueabi/bin/ar clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-ar
-        mv clang-llvm/arm-linux-gnueabi/bin/as clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-as
-        mv clang-llvm/arm-linux-gnueabi/bin/ld clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-ld
-        mv clang-llvm/arm-linux-gnueabi/bin/ld.bfd clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-ld.bdf
-        mv clang-llvm/arm-linux-gnueabi/bin/nm clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-nm
-        mv clang-llvm/arm-linux-gnueabi/bin/objcopy clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-objcopy
-        mv clang-llvm/arm-linux-gnueabi/bin/objdump clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-objdump
-        mv clang-llvm/arm-linux-gnueabi/bin/ranlib clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-ranlib
-        mv clang-llvm/arm-linux-gnueabi/bin/readelf clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-readelf
-        mv clang-llvm/arm-linux-gnueabi/bin/strip clang-llvm/arm-linux-gnueabi/bin/arm-linux-androideabi-strip
+        cd ${{ GITHUB.WORKSPACE }}/clang-llvm/aarch64-linux-gnu/bin
+        for file in *; do
+            mv "$file" "aarch64-linux-gnu-${file%}"
+            echo Moved "$file" to "aarch64-linux-gnu-${file%}"
+        done
+        cd ${{ GITHUB.WORKSPACE }}/clang-llvm/arm-linux-gnueabi/bin
+        for file in *; do
+            mv "$file" "arm-linux-gnueabi-${file%}"
+            echo Moved "$file" to "arm-linux-gnueabi-${file%}"
+        done
+        cd ${{ GITHUB.WORKSPACE }}/clang-llvm/x86_64-pc-linux-gnu/bin
+        for file in *; do
+            mv "$file" "x86_64-pc-linux-gnu-${file%}"
+            echo Moved "$file" to "x86_64-pc-linux-gnu-${file%}"
+        done
 
     - name: Run a script
       run: |
@@ -113,7 +104,7 @@ jobs:
         SUBARCH=$ARCH
 
         KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
-        PATH="${TC_DIR}/bin:${TC_DIR}/aarch64-linux-gnu/bin:${TC_DIR}/arm-linux-gnueabi/bin:$TC_DIR/bin/:$PATH"
+        PATH="${TC_DIR}/aarch64-linux-gnu/bin:${TC_DIR}/arm-linux-gnueabi/bin:${TC_DIR}/bin:$PATH"
 
         BOT_MSG_URL="https://api.telegram.org/bot$TOKEN/sendMessage"
         BOT_BUILD_URL="https://api.telegram.org/bot$TOKEN/sendDocument"
@@ -148,8 +139,8 @@ jobs:
 
         tg_post_msg "<b>$KBUILD_BUILD_VERSION CI Build Triggered</b>%0A<b>Host: </b><code>$DISTRO</code>%0A<b>Kernel Version : </b><code>$KERVER</code>%0A<b>Date : </b><code>$(TZ=Europe/Berlin date)</code>%0A<b>Device : </b><code>$MODEL [$DEVICE]</code>%0A<b>Pipeline Host : </b><code>$KBUILD_BUILD_HOST</code>%0A<b>Host Core Count : </b><code>$(nproc --all)</code>%0A<b>Compiler Used : </b><code>$KBUILD_COMPILER_STRING</code>%0a<b>Branch : </b><code>$CI_BRANCH</code>%0A<b>Top Commit : </b><code>$COMMIT_HEAD</code>%0A<a href='$SERVER_URL'>Link</a>"
 
-        CROSS_COMPILE="aarch64-linux-android-"
-        CROSS_COMPILE_ARM32="arm-linux-androideabi-"
+        CROSS_COMPILE="aarch64-linux-gnu-"
+        CROSS_COMPILE_ARM32="arm-linux-gnueabi-"
         export CROSS_COMPILE CROSS_COMPILE_ARM32
 
         make O=out $DEFCONFIG
@@ -160,6 +151,7 @@ jobs:
                   ARCH=arm64 \
                   CC=clang \
         CLANG_TRIPLE=aarch64-linux-gnu- \
+        CROSS_COMPILE_ARM32="arm-linux-gnueabi-" \
         CROSS_COMPILE=aarch64-linux-gnu-
 
         "${MAKE[@]}" 2>&1 | tee error.log
