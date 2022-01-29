@@ -67,9 +67,6 @@ jobs:
 
     - name: Run a script
       run: |
-        # Bail out if script fails
-        set -e
-
         # Basic variables
         KERNEL_DIR="$(pwd)"
         BASEDIR="$(basename "$KERNEL_DIR")"

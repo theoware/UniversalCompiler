@@ -66,9 +66,6 @@ jobs:
 
     - name: Run a script
       run: |
-        # Bail out if script fails
-        set -e
-
         # Basic variables
         KERNEL_DIR="$(pwd)"
         BASEDIR="$(basename "$KERNEL_DIR")"
@@ -103,7 +100,7 @@ jobs:
         SUBARCH=$ARCH
 
         KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
-        PATH="${TC_DIR}/aarch64-linux-gnu/bin:${TC_DIR}/arm-linux-gnueabi/bin:${TC_DIR}/bin:$PATH"
+        PATH="${TC_DIR}/bin:${TC_DIR}/aarch64-linux-gnu/bin:${TC_DIR}/arm-linux-gnueabi/bin:$PATH"
 
         BOT_MSG_URL="https://api.telegram.org/bot$TOKEN/sendMessage"
         BOT_BUILD_URL="https://api.telegram.org/bot$TOKEN/sendDocument"
