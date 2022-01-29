@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-name: Cybertron
+name: Cybertron Build
 
 on:
   push:

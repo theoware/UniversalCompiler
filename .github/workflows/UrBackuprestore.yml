@@ -9,6 +9,7 @@ jobs:
   build:
     name: Create new ISO
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@main
@@ -41,6 +42,7 @@ jobs:
         with:
           name: live-image-amd64.iso
           path: './image_root/live-image-amd64.hybrid.iso'
+
       - name: Send fail message
         if: ${{ failure() }}
         uses: appleboy/telegram-action@master
@@ -48,6 +50,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: ${{ GITHUB.WORKFLOW }} failed
+
       - name: Send suceed message
         if: ${{ !failure() }}
         uses: appleboy/telegram-action@master

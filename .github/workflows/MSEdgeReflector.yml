@@ -1,4 +1,4 @@
-name: MSEdgeReflector
+name: MSEdgeReflector Build
 
 on:
   push:
