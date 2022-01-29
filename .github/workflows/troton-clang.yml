@@ -26,10 +26,12 @@ jobs:
           fetch-depth: 0
 
       - name: Get ref
+        working-directory: llvm-project/
         id: get-ref
         run: echo "::set-output name=ref::$(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep ........${{ matrix.ref }}.... | head -n 1)"
 
       - name: Checkout ref
+        working-directory: llvm-project/
         run: git checkout ${{ steps.get-ref.outputs.ref }}
 
       - name: Install dependencies
