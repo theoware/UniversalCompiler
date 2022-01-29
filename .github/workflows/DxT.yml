@@ -36,7 +36,7 @@ jobs:
     - name: Checkout clang
       uses: actions/checkout@main
       with:
-        repository: theoware/troton-clang
+        repository: kdrag0n/proton-clang
         path: clang-llvm
 
     - name: Checkout AnyKernel3
