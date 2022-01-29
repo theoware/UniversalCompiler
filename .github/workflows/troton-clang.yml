@@ -31,6 +31,7 @@ jobs:
         run: echo "::set-output name=ref::$(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep ........${{ matrix.ref }}.... | head -n 1)"
 
       - name: Checkout ref
+        if: matrix.ref != 14
         working-directory: llvm-project/
         run: git checkout ${{ steps.get-ref.outputs.ref }}
 
