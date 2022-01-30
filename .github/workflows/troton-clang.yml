@@ -148,7 +148,7 @@ jobs:
           LLVM commit: $llvm_commit_url
           binutils version: $binutils_ver
           Builder commit: https://github.com/$GH_BUILD_REPO/commit/$builder_commit"
-          git push --set-upstream origin
+          git push --set-upstream origin ${{ steps.get-ref.outputs.ref }}
           popd
 
           # Send Telegram notification
