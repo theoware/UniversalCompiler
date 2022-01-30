@@ -135,8 +135,9 @@ jobs:
 
           # Update Git repository
           git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
-          git branch ${{ steps.get-ref.outputs.ref }} main
           pushd rel_repo
+          git branch ${{ steps.get-ref.outputs.ref }} main
+          git checkout ${{ steps.get-ref.outputs.ref }}
           rm -rf *
           cp -r ../install/* .
           # Keep files that aren't part of the toolchain itself
@@ -160,5 +161,5 @@ jobs:
               fi
               set -u
 
-              tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$short_llvm_commit]($llvm_commit_url) is now available: [Git repository](https://github.com/$GH_REL_REPO)"
+              tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$short_llvm_commit]($llvm_commit_url) with clang version $clang_version is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/${{ steps.get-ref.outputs.ref }})"
           fi
