@@ -9,8 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        ref: [llvmorg-1, llvmorg-2, llvmorg-3, llvmorg-4, llvmorg-5, llvmorg-6, llvmorg-7, llvmorg-10, llvmorg-11, llvmorg-12, llvmorg-13, llvmorg-14]
+        ref: [llvmorg-3, llvmorg-4, llvmorg-5, llvmorg-6, llvmorg-7, llvmorg-10, llvmorg-11, llvmorg-12, llvmorg-13, llvmorg-14]
 
     steps:
       - name: Download scripts
