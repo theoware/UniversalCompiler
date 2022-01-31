@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: [llvmorg-3, llvmorg-4, llvmorg-5, llvmorg-6, llvmorg-7, llvmorg-10, llvmorg-11, llvmorg-12, llvmorg-13, llvmorg-14]
+        ref: [llvmorg-10.0.0, llvmorg-10.0.1, llvmorg-11.0.0, llvmorg-11.0.1, llvmorg-11.1.0, llvmorg-12.0.1, llvmorg-12.0.0, llvmorg-13.0.0, llvmorg-13.0.1, llvmorg-14]
 
     steps:
       - name: Download scripts
@@ -32,7 +32,7 @@ jobs:
         run: echo "::set-output name=ref::$(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep ${{ matrix.ref }} | head -n 1)"
 
       - name: Checkout ref
-        if: matrix.ref != 14
+        if: matrix.ref != llvmorg-14
         working-directory: llvm-project/
         run: git checkout ${{ steps.get-ref.outputs.ref }}
 
@@ -81,13 +81,6 @@ jobs:
             echo "$bin"
             patchelf --set-rpath '$ORIGIN/../lib' "$bin"
           done
-
-      - name: Upload install dir
-        uses: actions/upload-artifact@main
-        with:
-          name: install
-          path: install/
-          if-no-files-found: error
 
       - name: Upload
         env:
