@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ref: [13, 14]
+        ref: [llvmorg-1, llvmorg-2, llvmorg-3, llvmorg-4, llvmorg-5, llvmorg-6, llvmorg-7, llvmorg-8, llvmorg-9, llvmorg-10, llvmorg-11, llvmorg-12, llvmorg-13, llvmorg-14]
 
     steps:
       - name: Download scripts
@@ -28,7 +28,7 @@ jobs:
       - name: Get ref
         working-directory: llvm-project/
         id: get-ref
-        run: echo "::set-output name=ref::$(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep ........${{ matrix.ref }}.... | head -n 1)"
+        run: echo "::set-output name=ref::$(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep ${{ matrix.ref }} | head -n 1)"
 
       - name: Checkout ref
         if: matrix.ref != 14
@@ -136,8 +136,8 @@ jobs:
           # Update Git repository
           git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
           pushd rel_repo
-          git branch ${{ steps.get-ref.outputs.ref }} main
-          git checkout ${{ steps.get-ref.outputs.ref }}
+          git branch $clang_version main
+          git checkout $clang_version
           rm -rf *
           cp -r ../install/* .
           # Keep files that aren't part of the toolchain itself
@@ -148,7 +148,7 @@ jobs:
           LLVM commit: $llvm_commit_url
           binutils version: $binutils_ver
           Builder commit: https://github.com/$GH_BUILD_REPO/commit/$builder_commit"
-          git push --set-upstream origin ${{ steps.get-ref.outputs.ref }}
+          git push --set-upstream origin $clang_version
           popd
 
           # Send Telegram notification
@@ -161,5 +161,5 @@ jobs:
               fi
               set -u
 
-              tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$short_llvm_commit]($llvm_commit_url) with clang version $clang_version is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/${{ steps.get-ref.outputs.ref }})"
+              tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$short_llvm_commit]($llvm_commit_url) with clang version $clang_version is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/$clang_version)"
           fi
