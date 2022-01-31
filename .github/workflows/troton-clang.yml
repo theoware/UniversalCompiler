@@ -117,7 +117,7 @@ jobs:
           builder_commit="$(git rev-parse HEAD)"
           pushd llvm-project
           llvm_commit="$(git rev-parse HEAD)"
-          short_llvm_commit="$(cut -c-8 <<< $llvm_commit)"
+          short_llvm_commit="$(cut -c-7 <<< $llvm_commit)"
           popd
 
           llvm_commit_url="https://github.com/llvm/llvm-project/commit/$llvm_commit"
@@ -141,7 +141,7 @@ jobs:
 
           LLVM commit: $llvm_commit_url
           binutils version: $binutils_ver
-          Builder commit: https://github.com/$GH_BUILD_REPO/commit/$builder_commit"
+          Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$builder_commit"
           git push --set-upstream origin $clang_version
           popd
 
