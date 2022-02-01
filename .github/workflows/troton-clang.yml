@@ -142,7 +142,7 @@ jobs:
           LLVM commit: $llvm_commit_url
           binutils version: $binutils_ver
           Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$builder_commit"
-          git push --set-upstream origin $clang_version
+          git push
           popd
 
           # Send Telegram notification
