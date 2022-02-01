@@ -130,6 +130,9 @@ jobs:
           # Update Git repository
           git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
           pushd rel_repo
+          git branch -D $clang_version
+          git push origin -d $clang_version
+          git pull
           git branch $clang_version main
           git checkout $clang_version
           rm -rf *
