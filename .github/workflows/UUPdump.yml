@@ -66,3 +66,19 @@ jobs:
           d=${{ steps.iso.outputs.name }}03
           fi
           gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" $(date "+%y.%m.%d.%H.%M.%S") $a $b $c $d
+
+      - name: Send fail message
+        if: ${{ failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ GITHUB.WORKFLOW }} failed
+
+      - name: Send suceed message
+        if: ${{ !failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ GITHUB.WORKFLOW }} succeeded
