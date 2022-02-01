@@ -47,31 +47,10 @@ jobs:
 
       - name: Get date
         id: get-date
-        run: echo "::set-output name=date::$(date "+%y.%m.%d.%H.%M.%S")"
+        run: echo "::set-output name=date::"
 
       - name: Create release
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "${{ steps.get-date.outputs.date }}"
-
-      - name: Upload ISO
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [ -f ${{ steps.iso.outputs.name }}00 ]; 
-          then
-          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}00
-          fi
-          if [ -f ${{ steps.iso.outputs.name }}01 ]; 
-          then
-          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}01
-          fi
-          if [ -f ${{ steps.iso.outputs.name }}02 ]; 
-          then
-          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}02
-          fi
-          if [ -f ${{ steps.iso.outputs.name }}03 ]; 
-          then
-          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}03
-          fi
+          gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" $(date "+%y.%m.%d.%H.%M.%S") "${{ steps.iso.outputs.name }}*"
