@@ -36,8 +36,9 @@ jobs:
     - name: Checkout clang
       uses: actions/checkout@main
       with:
-        repository: kdrag0n/proton-clang
+        repository: theoware/troton-clang
         path: clang-llvm
+        ref: 13.0.1
 
     - name: Checkout AnyKernel3
       uses: actions/checkout@main
@@ -179,22 +180,6 @@ jobs:
           tg_post_build "error.log" "$CHATID" "Debug Mode Logs"
         fi
 
-    - name: Get filename
-      id: get_name
-      run: echo ::set-output name=name::$(find AnyKernel3/ -type f -name "*-*-*.zip" -printf '%P\n' | sed 's/://g')
-
-    - name: Extract final kernel
+    - name: Create release
       run: |
-        unzip $(find AnyKernel3/ -type f -name "*-*-*.zip") -d unzipped/
-
-    - uses: actions/upload-artifact@main
-      with:
-        name: kernel
-        path: | 
-          ./out/arch/arm64/
-
-    - uses: actions/upload-artifact@main
-      with:
-        name: "${{ steps.get_name.outputs.name }}"
-        path: | 
-          ./unzipped/
+        gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "$(date "+%y.%m.%d.%H.%M.%S")" $(find AnyKernel3/ -type f -name "*-*-*.zip")
