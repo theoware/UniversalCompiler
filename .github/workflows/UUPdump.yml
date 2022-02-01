@@ -16,7 +16,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@main
 
       - name: Install dependencies
@@ -46,33 +45,33 @@ jobs:
         run: |
           split --bytes=2147483647 --numeric-suffixes $(find * -name *.ISO -type f) $(find * -name *.ISO -type f)
 
-    - name: Get date
-      id: get-date
-      run: echo "::set-output name=date::$(date "+%y.%m.%d.%H.%M.%S")"
+      - name: Get date
+        id: get-date
+        run: echo "::set-output name=date::$(date "+%y.%m.%d.%H.%M.%S")"
 
-    - name: Create release
-      env:
+      - name: Create release
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "${{ steps.get-date.outputs.date }}"
+
+      - name: Upload ISO
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "${{ steps.get-date.outputs.date }}"
-
-    - name: Upload ISO
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        if [ -f ${{ steps.iso.outputs.name }}00 ]; 
-        then
-        gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}00
-        fi
-        if [ -f ${{ steps.iso.outputs.name }}01 ]; 
-        then
-        gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}01
-        fi
-        if [ -f ${{ steps.iso.outputs.name }}02 ]; 
-        then
-        gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}02
-        fi
-        if [ -f ${{ steps.iso.outputs.name }}03 ]; 
-        then
-        gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}03
-        fi
+        run: |
+          if [ -f ${{ steps.iso.outputs.name }}00 ]; 
+          then
+          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}00
+          fi
+          if [ -f ${{ steps.iso.outputs.name }}01 ]; 
+          then
+          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}01
+          fi
+          if [ -f ${{ steps.iso.outputs.name }}02 ]; 
+          then
+          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}02
+          fi
+          if [ -f ${{ steps.iso.outputs.name }}03 ]; 
+          then
+          gh release upload --clobber ${{ steps.iso.outputs.name }} ${{ steps.iso.outputs.name }}03
+          fi
