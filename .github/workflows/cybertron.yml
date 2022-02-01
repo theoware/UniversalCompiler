@@ -66,7 +66,7 @@ jobs:
             echo Moved "$file" to "x86_64-pc-linux-gnu-${file%}"
         done
 
-    - name: Run a script
+    - name: Compile the kernel
       run: |
         # Basic variables
         KERNEL_DIR="$(pwd)"
@@ -182,5 +182,7 @@ jobs:
         fi
 
     - name: Create release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "$(date "+%y.%m.%d.%H.%M.%S")" $(find AnyKernel3/ -type f -name "*-*-*.zip")
