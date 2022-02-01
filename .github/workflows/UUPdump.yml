@@ -45,12 +45,8 @@ jobs:
         run: |
           split --bytes=2147483647 --numeric-suffixes $(find * -name *.ISO -type f) $(find * -name *.ISO -type f)
 
-      - name: Get date
-        id: get-date
-        run: echo "::set-output name=date::"
-
       - name: Create release
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" $(date "+%y.%m.%d.%H.%M.%S") "./${{ steps.iso.outputs.name }}*"
+          gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" $(date "+%y.%m.%d.%H.%M.%S") "./${{ steps.iso.outputs.name }}**"
