@@ -51,18 +51,18 @@ jobs:
         run: |
           if [ -f ${{ steps.iso.outputs.name }}00 ]; 
           then
-          00=${{ steps.iso.outputs.name }}00
+          a=${{ steps.iso.outputs.name }}00
           fi
           if [ -f ${{ steps.iso.outputs.name }}01 ]; 
           then
-          01=${{ steps.iso.outputs.name }}01
+          b=${{ steps.iso.outputs.name }}01
           fi
           if [ -f ${{ steps.iso.outputs.name }}02 ]; 
           then
-          02=${{ steps.iso.outputs.name }}02
+          c=${{ steps.iso.outputs.name }}02
           fi
           if [ -f ${{ steps.iso.outputs.name }}03 ]; 
           then
-          03=${{ steps.iso.outputs.name }}03
+          d=${{ steps.iso.outputs.name }}03
           fi
-          gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" $(date "+%y.%m.%d.%H.%M.%S") $00 $01 $02 $03
+          gh release create -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" $(date "+%y.%m.%d.%H.%M.%S") $a $b $c $d
