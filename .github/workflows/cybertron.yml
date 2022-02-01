@@ -185,4 +185,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create -R ${{ GITHUB.ACTION_REPOSITORY }} -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "$(date "+%y.%m.%d.%H.%M.%S")" $(find AnyKernel3/ -type f -name "*-*-*.zip")
+        gh release create -R ${{ GITHUB.REPOSITORY }} -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "$(date "+%y.%m.%d.%H.%M.%S")" $(find AnyKernel3/ -type f -name "*-*-*.zip")
