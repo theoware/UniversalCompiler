@@ -83,6 +83,7 @@ jobs:
           done
 
       - name: Upload
+        continue-on-error: true
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
