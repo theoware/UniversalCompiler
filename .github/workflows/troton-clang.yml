@@ -92,7 +92,7 @@ jobs:
         run: |
           # Generate build info
           echo "::set-output name=rel_date::$(date "+%Y%m%d")" # ISO 8601 format
-          echo "::set-output name=clang_version::$install/bin/clang --version | head -n1 | cut -d' ' -f4)"
+          echo "::set-output name=clang_version::$(install/bin/clang --version | head -n1 | cut -d' ' -f4)"
           echo "::set-output name=binutils_ver::$(ls | grep "^binutils-" | sed "s/binutils-//g")"
 
           # Generate release info
