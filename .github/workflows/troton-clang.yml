@@ -105,31 +105,6 @@ jobs:
           echo "::set-output name=llvm_commit_url::$(echo "https://github.com/llvm/llvm-project/commit/$llvm_commit")"
           echo "::set-output name=build_desc::$(echo "[$REL_DATE build](https://github.com/$GH_BUILD_REPO/actions/runs/${{ GITHUB.RUN_ID }})")"
 
-      - name: Upload the install directory
-        uses: actions/upload-artifact@main
-        with:
-          name: tc
-          path: install/
-          retention-days: 7
-
-    outputs:
-      binutils_ver: ${{ steps.info.outputs.binutils_ver }}
-      builder_commit: ${{ steps.info.outputs.builder_commit }}
-      clang_version: ${{ steps.info.outputs.clang_version }}
-      llvm_commit_url: ${{ steps.info.outputs.llvm_commit_url }}
-      rel_date: ${{ steps.info.outputs.rel_date }}
-
-  upload:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-
-      - name: Download the install directory
-        uses: actions/download-artifact@main
-        with:
-          name: tc
-          path: install/
-        
       - name: Clone git repo
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -139,14 +114,14 @@ jobs:
 
       - name: Delete old local branch
         env:
-          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         continue-on-error: true
         run: git branch -D $CLANG_VERSION
 
       - name: Delete remote branch
         env:
-          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         continue-on-error: true
         run: git push origin -d $CLANG_VERSION
@@ -157,13 +132,13 @@ jobs:
 
       - name: Create new branch
         env:
-          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         run: git branch $CLANG_VERSION main
 
       - name: Checkout new branch
         env:
-          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         run: git checkout $CLANG_VERSION
 
@@ -181,10 +156,10 @@ jobs:
 
       - name: Create commit
         env:
-          BINUTILS_VER: ${{ steps.build.info.outputs.binutils_ver }}
-          BUILDER_COMMIT: ${{ steps.build.info.outputs.builder_commit }}
-          LLVM_COMMIT_URL: ${{ steps.build.info.outputs.llvm_commit_url }}
-          REL_DATE: ${{ steps.build.info.outputs.rel_date }}
+          BINUTILS_VER: ${{ steps.info.outputs.binutils_ver }}
+          BUILDER_COMMIT: ${{ steps.info.outputs.builder_commit }}
+          LLVM_COMMIT_URL: ${{ steps.info.outputs.llvm_commit_url }}
+          REL_DATE: ${{ steps.info.outputs.rel_date }}
         working-directory: rel_repo
         run: |
           git add .
