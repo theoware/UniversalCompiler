@@ -82,16 +82,129 @@ jobs:
             patchelf --set-rpath '$ORIGIN/../lib' "$bin"
           done
 
-      - name: Upload
-        continue-on-error: true
+      - name: Delete large files
+        run: |
+          find . -type f -size +100M -delete
+          find . -type f -name *.git -size +90M -delete
+
+      - name: Generate info
+        id: info
+        run: |
+          # Generate build info
+          echo "::set-output name=rel_date::$(date "+%Y%m%d")" # ISO 8601 format
+          echo "::set-output name=clang_version::$install/bin/clang --version | head -n1 | cut -d' ' -f4)"
+          echo "::set-output name=binutils_ver::$(ls | grep "^binutils-" | sed "s/binutils-//g")"
+
+          # Generate release info
+          echo "::set-output name=builder_commit::$(git rev-parse HEAD)"
+          pushd llvm-project
+          echo "::set-output name=llvm_commit::$(git rev-parse HEAD)"
+          echo "::set-output name=short_llvm_commit::$(cut -c-7 <<< $llvm_commit)"
+          popd
+
+          echo "::set-output name=llvm_commit_url::$(echo "https://github.com/llvm/llvm-project/commit/$llvm_commit")"
+          echo "::set-output name=build_desc::$(echo "[$REL_DATE build](https://github.com/$GH_BUILD_REPO/actions/runs/${{ GITHUB.RUN_ID }})")"
+
+      - name: Upload the install directory
+        uses: actions/upload-artifact@main
+        with:
+          name: tc
+          path: install/
+          retention-days: 7
+
+    outputs:
+      binutils_ver: ${{ steps.info.outputs.binutils_ver }}
+      builder_commit: ${{ steps.info.outputs.builder_commit }}
+      clang_version: ${{ steps.info.outputs.clang_version }}
+      llvm_commit_url: ${{ steps.info.outputs.llvm_commit_url }}
+      rel_date: ${{ steps.info.outputs.rel_date }}
+
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+
+      - name: Download the install directory
+        uses: actions/download-artifact@main
+        with:
+          name: tc
+          path: install/
+        
+      - name: Clone git repo
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
-          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          GH_USER: theoware
           GH_REL_REPO: theoware/troton-clang
+          GH_USER: theoware
+        run: git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
+
+      - name: Delete old local branch
+        env:
+          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+        working-directory: rel_repo
+        continue-on-error: true
+        run: git branch -D $CLANG_VERSION
+
+      - name: Delete remote branch
+        env:
+          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+        working-directory: rel_repo
+        continue-on-error: true
+        run: git push origin -d $CLANG_VERSION
+
+      - name: Pull
+        working-directory: rel_repo
+        run: git pull
+
+      - name: Create new branch
+        env:
+          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+        working-directory: rel_repo
+        run: git branch $CLANG_VERSION main
+
+      - name: Checkout new branch
+        env:
+          CLANG_VERSION: ${{ steps.build.info.outputs.clang_version }}
+        working-directory: rel_repo
+        run: git checkout $CLANG_VERSION
+
+      - name: Remove old files
+        working-directory: rel_repo
+        run: rm -rf *
+
+      - name: Copy install
+        working-directory: rel_repo
+        run: cp -r ../install/* .
+
+      - name: Keep files that arent part of the toolchain itself
+        working-directory: rel_repo
+        run: git checkout README.md LICENSE
+
+      - name: Create commit
+        env:
+          BINUTILS_VER: ${{ steps.build.info.outputs.binutils_ver }}
+          BUILDER_COMMIT: ${{ steps.build.info.outputs.builder_commit }}
+          LLVM_COMMIT_URL: ${{ steps.build.info.outputs.llvm_commit_url }}
+          REL_DATE: ${{ steps.build.info.outputs.rel_date }}
+        working-directory: rel_repo
+        run: |
+          git add .
+          git commit -am "Update to $REL_DATE build
+
+          LLVM commit: $LLVM_COMMIT_URL
+          binutils version: $BINUTILS_VER
+          Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$BUILDER_COMMIT"
+
+      - name: Push
+        working-directory: rel_repo
+        run: git push
+
+      - name: Send Telegram notification
+        env:
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
           GH_BUILD_REPO: theoware/tc-build
-          GH_RUN_ID: ${{ GITHUB.RUN_ID }}
+          LLVM_COMMIT_URL: ${{ steps.info.outputs.llvm_commit_url }}
+          REL_DATE: ${{ steps.info.outputs.rel_date }}
+          SHORT_LLVM_COMMIT: ${{ steps.info.outputs.short_llvm_commit }}
         run: |
           # Helper function to send a Telegram message
           function tg_send() {
@@ -103,61 +216,10 @@ jobs:
                   args+=(-F "$arg")
               done
 
-              curl -sf --form-string chat_id="$TELEGRAM_TO" \
+              curl -sf --form-string chat_id="${{ secrets.TELEGRAM_TO }}" \
                   "${args[@]}" \
-                  "https://api.telegram.org/bot$TELEGRAM_TOKEN/send$msg_type" \
+                  "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/send$msg_type" \
                   > /dev/null
           }
+          tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$SHORT_LLVM_COMMIT]($LLVM_COMMIT_URL) with clang version $CLANG_VERSION is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/$CLANG_VERSION)"
 
-          # Generate build info
-          rel_date="$(date "+%Y%m%d")" # ISO 8601 format
-          rel_friendly_date="$(date "+%B %-d, %Y")" # "Month day, year" format
-          clang_version="$(install/bin/clang --version | head -n1 | cut -d' ' -f4)"
-
-          # Generate release info
-          builder_commit="$(git rev-parse HEAD)"
-          pushd llvm-project
-          llvm_commit="$(git rev-parse HEAD)"
-          short_llvm_commit="$(cut -c-7 <<< $llvm_commit)"
-          popd
-
-          llvm_commit_url="https://github.com/llvm/llvm-project/commit/$llvm_commit"
-          binutils_ver="$(ls | grep "^binutils-" | sed "s/binutils-//g")"
-
-          # Delete large files
-          find . -type f -size +100M -delete
-          find . -type f -name *.git -size +90M -delete
-
-          # Update Git repository
-          git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
-          pushd rel_repo
-          git branch -D $clang_version
-          git push origin -d $clang_version
-          git pull
-          git branch $clang_version main
-          git checkout $clang_version
-          rm -rf *
-          cp -r ../install/* .
-          # Keep files that aren't part of the toolchain itself
-          git checkout README.md LICENSE
-          git add .
-          git commit -am "Update to $rel_date build
-
-          LLVM commit: $llvm_commit_url
-          binutils version: $binutils_ver
-          Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$builder_commit"
-          git push
-          popd
-
-          # Send Telegram notification
-          set +u  # we're checking potentially unset variables here
-          if [[ -n "$TELEGRAM_TO" ]] && [[ -n "$TELEGRAM_TOKEN" ]]; then
-              if [[ -n "$GH_RUN_ID" ]]; then
-                  build_desc="[$rel_date build](https://github.com/$GH_BUILD_REPO/actions/runs/$GH_RUN_ID)"
-              else
-                  build_desc="*$rel_date build*"
-              fi
-              set -u
-
-              tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$short_llvm_commit]($llvm_commit_url) with clang version $clang_version is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/$clang_version)"
-          fi
