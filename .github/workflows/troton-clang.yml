@@ -139,6 +139,7 @@ jobs:
           else
             git branch $CLANG_VERSION main
           fi
+          git fetch origin
 
       - name: Checkout new branch
         env:
