@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: [13, 14]
+        ref: [13, 14, latest]
 
     steps:
       - name: Download scripts
@@ -26,15 +26,15 @@ jobs:
           repository: llvm/llvm-project
           fetch-depth: 0
 
-      - name: Get ref
+      - name: Checkout ref
+        if: matrix.ref != 14 && matrix.ref != latest
         working-directory: llvm-project/
-        id: get-ref
-        run: echo "::set-output name=ref::$(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep llvmorg-${{ matrix.ref }} | head -n 1)"
+        run: git checkout $(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep llvmorg-${{ matrix.ref }} | head -n 1)
 
       - name: Checkout ref
-        if: matrix.ref != 14
+        if: matrix.ref == 14 
         working-directory: llvm-project/
-        run: git checkout ${{ steps.get-ref.outputs.ref }}
+        run: git checkout db01b123d012df2f0e6acf7e90bf4ba63382587c
 
       - name: Install dependencies
         run: |
