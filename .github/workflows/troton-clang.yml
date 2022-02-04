@@ -20,6 +20,14 @@ jobs:
           repository: ClangBuiltLinux/tc-build
 
       - name: Download LLVM
+        if: matrix.ref == 'latest'
+        uses: actions/checkout@main
+        with:
+          path: llvm-project/
+          repository: llvm/llvm-project
+
+      - name: Download LLVM
+        if: matrix.ref != 'latest'
         uses: actions/checkout@main
         with:
           path: llvm-project/
