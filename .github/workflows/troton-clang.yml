@@ -98,7 +98,7 @@ jobs:
           # Generate release info
           echo "::set-output name=builder_commit::$(git rev-parse HEAD)"
           pushd llvm-project
-          echo "::set-output name=llvm_commit::$(git rev-parse HEAD)"
+          llvm_commit="$(git rev-parse HEAD)"
           echo "::set-output name=short_llvm_commit::$(cut -c-7 <<< $llvm_commit)"
           popd
 
@@ -112,22 +112,6 @@ jobs:
           GH_USER: theoware
         run: git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
 
-      - name: Delete old local branch
-        env:
-          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
-        working-directory: rel_repo
-        continue-on-error: true
-        run: git branch -D $CLANG_VERSION
-
-      - name: Delete remote branch
-        env:
-          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
-        working-directory: rel_repo
-        continue-on-error: true
-        run: git push origin -d $CLANG_VERSION
-
-
-
       - name: Pull
         working-directory: rel_repo
         run: git pull
@@ -136,6 +120,7 @@ jobs:
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
+        continue-on-error: true
         run: git branch $CLANG_VERSION main
 
       - name: Checkout new branch
@@ -186,8 +171,9 @@ jobs:
 
       - name: Send Telegram notification
         env:
+          BUILD_DESC: ${{ steps.info.outputs.build_desc }}
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
-          GH_BUILD_REPO: theoware/tc-build
+          GH_REL_REPO: theoware/troton-clang
           LLVM_COMMIT_URL: ${{ steps.info.outputs.llvm_commit_url }}
           REL_DATE: ${{ steps.info.outputs.rel_date }}
           SHORT_LLVM_COMMIT: ${{ steps.info.outputs.short_llvm_commit }}
@@ -207,5 +193,5 @@ jobs:
                   "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/send$msg_type" \
                   > /dev/null
           }
-          tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$SHORT_LLVM_COMMIT]($LLVM_COMMIT_URL) with clang version $CLANG_VERSION is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/$CLANG_VERSION)"
+          tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$BUILD_DESC on LLVM commit [$SHORT_LLVM_COMMIT]($LLVM_COMMIT_URL) with clang version $CLANG_VERSION is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/$CLANG_VERSION)"
 
