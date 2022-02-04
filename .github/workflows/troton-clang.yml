@@ -126,6 +126,8 @@ jobs:
         continue-on-error: true
         run: git push origin -d $CLANG_VERSION
 
+
+
       - name: Pull
         working-directory: rel_repo
         run: git pull
@@ -169,8 +171,17 @@ jobs:
           binutils version: $BINUTILS_VER
           Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$BUILDER_COMMIT"
 
+
+      - name: Push
+        env:
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
+        working-directory: rel_repo
+        continue-on-error: true
+        run: git push --set-upstream origin $CLANG_VERSION
+
       - name: Push
         working-directory: rel_repo
+        continue-on-error: true
         run: git push
 
       - name: Send Telegram notification
