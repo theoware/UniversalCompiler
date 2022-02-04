@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout ref
-        if: ${{ matrix.ref != 14 && matrix.ref != latest }}
+        if: ${{ matrix.ref != '14' && matrix.ref != 'latest' }}
         working-directory: llvm-project/
         run: git checkout $(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep llvmorg-${{ matrix.ref }} | head -n 1)
 
