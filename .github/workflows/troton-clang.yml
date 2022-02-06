@@ -123,23 +123,19 @@ jobs:
           GH_USER: theoware
         run: git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
 
-      - name: Pull
-        working-directory: rel_repo
-        run: git pull
-
-      - name: Rebase or create new branch
+      - name: Delete old local branch
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         continue-on-error: true
-        run: |
-          if [ -f .git/refs/remotes/origin/$CLANG_VERSION ]
-          then
-            git pull --rebase
-          else
-            git branch $CLANG_VERSION main
-          fi
-          git fetch origin
+        run: git branch -D $CLANG_VERSION
+
+      - name: Delete remote branch
+        env:
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
+        working-directory: rel_repo
+        continue-on-error: true
+        run: git push origin -d $CLANG_VERSION
 
       - name: Checkout new branch
         env:
