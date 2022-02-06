@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: [latest]
+        ref: [10.0.0, 10.0.1, 11.0.0, 11.0.1, 12.0.0, 12.0.1, 13.0.0, 13.0.1 14, latest]
 
     steps:
       - name: Download scripts
