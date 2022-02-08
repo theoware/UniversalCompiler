@@ -141,12 +141,13 @@ jobs:
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
-        run: git $CLANG_VERSION main
+        run: git branch $CLANG_VERSION main
 
       - name: Checkout new branch
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
+        continue-on-error: true
         run: git checkout $CLANG_VERSION
 
       - name: Remove old files
