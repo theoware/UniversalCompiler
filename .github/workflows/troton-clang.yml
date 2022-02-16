@@ -36,7 +36,7 @@ jobs:
           repository: ClangBuiltLinux/tc-build
 
       - name: Download LLVM
-        if: matrix.ref != 'main'
+        if: matrix.ref != 'latest'
         uses: actions/checkout@main
         with:
           path: llvm-project/
@@ -44,7 +44,7 @@ jobs:
           ref: release/${{ matrix.ref }}.x
 
       - name: Download LLVM
-        if: matrix.ref == 'main'
+        if: matrix.ref == 'latest'
         uses: actions/checkout@main
         with:
           path: llvm-project/
