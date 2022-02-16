@@ -24,7 +24,7 @@ jobs:
       - name: Get old LLVM commit hash
         id: oldllvm
         run: |
-          git fetch
+          git fetch --all
           if [ ${{ matrix.ref }} != main ]
           then
             git checkout $(git branch | sort -r -n | grep ${{ matrix.ref }} | head -n 1 | xargs)
@@ -35,8 +35,7 @@ jobs:
 
       - name: Get old tc-build commit hash
         id: oldtc
-        run: |
-          echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72- | xargs)"
+        run: echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72- | xargs)"
 
       - name: Download scripts
         uses: actions/checkout@main
