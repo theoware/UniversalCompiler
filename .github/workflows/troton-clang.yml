@@ -11,9 +11,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: [13.0, 14.0, latest]
+        ref: [10.0.0, 10.0.1, 11.0.0, 11.0.1, 11.1.0, 12.0.0, 12.0.1, 13.0.0, 13.0.1, 14.0, latest]
 
     steps:
+
+      - name: Download Troton clang
+        uses: actions/checkout@main
+        with:
+          repository: theoware/troton-clang
+
+      - name: Get old LLVM commit hash
+        if: matrix.ref != 'latest'
+        id: oldllvm
+        run: |
+          if [ ${{ matrix.ref }} != latest ]
+          then
+            git checkout $(git branch | grep ${{ matrix.ref }} | head -n 1 | xargs)
+            hash=$(git log | head -n 7 | tail -n +7 | cut -c62-)
+          else
+            git checkout $(git branch | sort -r | head -n 1 | xargs)
+            hash=$(git log | head -n 7 | tail -n +7 | cut -c62-)
+          fi
+          echo "::set-output name=hash::$hash"
+
+      - name: Get old tc-build commit hash
+        if: matrix.ref != 'latest'
+        id: oldtc
+        run: echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72-)"
+
       - name: Download scripts
         uses: actions/checkout@main
         with:
@@ -39,18 +64,30 @@ jobs:
         working-directory: llvm-project/
         run: git checkout $(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep llvmorg-${{ matrix.ref }} | head -n 1)
 
+      - name: Get new LLVM commit hash
+        working-directory: llvm-project/
+        id: newllvm
+        run: echo "::set-output name=hash::$(git rev-parse HEAD)"
+
+      - name: Get new tc-build commit hash
+        id: newtc
+        run: echo "::set-output name=hash::$(git rev-parse HEAD)"
+
       - name: Install dependencies
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           sudo apt-get update -y
           sudo apt-get upgrade -y
           sudo apt-get install -y --no-install-recommends bc bison ca-certificates clang cmake curl file flex gcc g++ git libelf-dev libssl-dev lld jq make ninja-build patchelf python3 texinfo xz-utils zlib1g-dev
 
       - name: Auth
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           git config --global user.name "${{ secrets.GIT_AUTHOR_NAME }}"
           git config --global user.email "${{ secrets.GIT_AUTHOR_EMAIL }}"
 
       - name: Build LLVM
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           ./build-llvm.py \
             --clang-vendor "Troton" \
@@ -61,22 +98,26 @@ jobs:
             --no-ccache
 
       - name: Build binutils
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           ./build-binutils.py \
           --targets arm aarch64 x86_64
 
       - name: Remove unused products
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           rm -rf install/include
           rm -f install/lib/*.a install/lib/*.la
 
       - name: Strip remaining products
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           for f in $(find install -type f -exec file {} \; | grep 'not stripped' | awk '{print $1}'); do
             strip ${f: : -1}
           done
 
       - name: Set executable rpaths so setting LD_LIBRARY_PATH isn't necessary
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           for bin in $(find install -mindepth 2 -maxdepth 3 -type f -exec file {} \; | grep 'ELF .* interpreter' | awk '{print $1}'); do
             # Remove last character from file output (':')
@@ -86,11 +127,13 @@ jobs:
           done
 
       - name: Delete large files
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           find . -type f -size +100M -delete
           find . -type f -name *.git -size +90M -delete
 
       - name: Generate info
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           GH_BUILD_REPO: theoware/UniversalCompiler
         id: info
@@ -112,6 +155,7 @@ jobs:
           echo "::set-output name=build_desc::$(echo "[$REL_DATE build](https://github.com/$GH_BUILD_REPO/actions/runs/${{ GITHUB.RUN_ID }})")"
 
       - name: Clone git repo
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
           GH_REL_REPO: theoware/troton-clang
@@ -119,6 +163,7 @@ jobs:
         run: git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
 
       - name: Delete old local branch
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
@@ -126,6 +171,7 @@ jobs:
         run: git branch -D $CLANG_VERSION
 
       - name: Delete remote branch
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
@@ -133,12 +179,14 @@ jobs:
         run: git push origin -d $CLANG_VERSION
 
       - name: Create new branch
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         run: git branch $CLANG_VERSION main
 
       - name: Checkout new branch
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
@@ -146,18 +194,22 @@ jobs:
         run: git checkout $CLANG_VERSION
 
       - name: Remove old files
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         working-directory: rel_repo
         run: rm -rf *
 
       - name: Copy install
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         working-directory: rel_repo
         run: cp -r ../install/* .
 
       - name: Keep files that arent part of the toolchain itself
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         working-directory: rel_repo
         run: git checkout README.md LICENSE
 
       - name: Create commit
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           BINUTILS_VER: ${{ steps.info.outputs.binutils_ver }}
           BUILDER_COMMIT: ${{ steps.info.outputs.builder_commit }}
@@ -173,6 +225,7 @@ jobs:
           Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$BUILDER_COMMIT"
 
       - name: Push
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
@@ -180,11 +233,13 @@ jobs:
         run: git push --set-upstream origin $CLANG_VERSION
 
       - name: Push
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         working-directory: rel_repo
         continue-on-error: true
         run: git push
 
       - name: Send Telegram notification
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash || steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           BUILD_DESC: ${{ steps.info.outputs.build_desc }}
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
