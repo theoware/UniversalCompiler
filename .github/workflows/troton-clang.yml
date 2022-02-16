@@ -24,9 +24,10 @@ jobs:
       - name: Get old LLVM commit hash
         id: oldllvm
         run: |
+          git fetch
           if [ ${{ matrix.ref }} != main ]
           then
-            git checkout $(git branch | grep ${{ matrix.ref }} | head -n 1 | xargs)
+            git checkout $(git branch | sort -r -n | grep ${{ matrix.ref }} | head -n 1 | xargs)
           else
             git checkout $(git branch | sort -r -n | head -n 1 | xargs)
           fi
@@ -35,8 +36,7 @@ jobs:
       - name: Get old tc-build commit hash
         id: oldtc
         run: |
-          git log | head -n 9 | tail -n +5 | cut -c72-
-          echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72-)"
+          echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72- | xargs)"
 
       - name: Download scripts
         uses: actions/checkout@main
@@ -52,6 +52,7 @@ jobs:
           ref: release/${{ matrix.ref }}.x
 
       - name: Download LLVM
+        if: matrix.ref == 'main'
         uses: actions/checkout@main
         with:
           path: llvm-project/
