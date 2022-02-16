@@ -11,31 +11,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: [latest]
-        num: [1, 2, 4, 6, 8]
-        lto: [--lto thin, --shallow-clone]
+        ref: [10, 11, 12, 13, 14, latest]
 
     steps:
+
+      - name: Download scripts
+        uses: actions/checkout@main
+        with:
+          repository: ClangBuiltLinux/tc-build
 
       - name: Download Troton clang
         uses: actions/checkout@main
         with:
           repository: theoware/troton-clang
           fetch-depth: 0
+          path: c/
           ref: ${{ matrix.ref }}
 
       - name: Get old LLVM commit hash
+        working-directory: c/
         id: oldllvm
         run: echo "::set-output name=hash::$(git log | head -n 7 | tail -n +7 | cut -c62- | xargs)"
 
       - name: Get old tc-build commit hash
+        working-directory: c/
         id: oldtc
         run: echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72- | xargs)"
 
-      - name: Download scripts
+      - name: Download Troton clang
         uses: actions/checkout@main
         with:
-          repository: ClangBuiltLinux/tc-build
+          repository: theoware/troton-clang
+          fetch-depth: 0
+          path: tc/
+          ref: latest
 
       - name: Download LLVM
         if: matrix.ref != 'latest'
@@ -77,12 +86,15 @@ jobs:
       - name: Build LLVM
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
+          PATH="tc/bin:$PATH"
+          export PATH
           ./build-llvm.py \
             --clang-vendor "Troton" \
             --targets "ARM;AArch64;X86" \
+            --shallow-clone \
             --no-update \
             --show-build-commands \
-            --no-ccache -D LLVM_PARALLEL_COMPILE_JOBS=${{ matrix.num }} LLVM_PARALLEL_LINK_JOBS=${{ matrix.num }} ${{ matrix.lto }}
+            --no-ccache
 
       - name: Build binutils
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -155,7 +167,7 @@ jobs:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         continue-on-error: true
-        run: git branch -D $CLANG_VERSION
+        run: git branch -D ${{ matrix.ref }}
 
       - name: Delete remote branch
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -163,14 +175,14 @@ jobs:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         continue-on-error: true
-        run: git push origin -d $CLANG_VERSION
+        run: git push origin -d ${{ matrix.ref }}
 
       - name: Create new branch
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
-        run: git branch $CLANG_VERSION main
+        run: git branch ${{ matrix.ref }} main
 
       - name: Checkout new branch
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -178,7 +190,7 @@ jobs:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         continue-on-error: true
-        run: git checkout $CLANG_VERSION
+        run: git checkout ${{ matrix.ref }}
 
       - name: Remove old files
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -210,3 +222,44 @@ jobs:
           LLVM commit: $LLVM_COMMIT_URL
           binutils version: $BINUTILS_VER
           Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$BUILDER_COMMIT"
+
+      - name: Push
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        env:
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
+        working-directory: rel_repo
+        continue-on-error: true
+        run: git push --set-upstream origin ${{ matrix.ref }}
+
+      - name: Push
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        working-directory: rel_repo
+        continue-on-error: true
+        run: git push
+
+      - name: Send Telegram notification
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        env:
+          BUILD_DESC: ${{ steps.info.outputs.build_desc }}
+          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
+          GH_REL_REPO: theoware/troton-clang
+          LLVM_COMMIT_URL: ${{ steps.info.outputs.llvm_commit_url }}
+          REL_DATE: ${{ steps.info.outputs.rel_date }}
+          SHORT_LLVM_COMMIT: ${{ steps.info.outputs.short_llvm_commit }}
+        run: |
+          # Helper function to send a Telegram message
+          function tg_send() {
+              local msg_type="$1"
+              shift
+
+              local args=()
+              for arg in "$@"; do
+                  args+=(-F "$arg")
+              done
+
+              curl -sf --form-string chat_id="${{ secrets.TELEGRAM_TO }}" \
+                  "${args[@]}" \
+                  "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/send$msg_type" \
+                  > /dev/null
+          }
+          tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$BUILD_DESC on LLVM commit [$SHORT_LLVM_COMMIT]($LLVM_COMMIT_URL) with clang version $CLANG_VERSION is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/$CLANG_VERSION)"
