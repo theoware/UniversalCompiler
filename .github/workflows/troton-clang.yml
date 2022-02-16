@@ -28,7 +28,7 @@ jobs:
           then
             git checkout $(git branch | grep ${{ matrix.ref }} | head -n 1 | xargs)
           else
-            git checkout $(git branch | sort -r | head -n 1 | xargs)
+            git checkout $(git branch | sort -r -n | head -n 1 | xargs)
           fi
           git log | head -n 7 | tail -n +7 | cut -c62-
           git branches
