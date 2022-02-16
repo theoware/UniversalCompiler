@@ -31,7 +31,7 @@ jobs:
             git checkout $(git branch | sort -r -n | head -n 1 | xargs)
           fi
           git log | head -n 7 | tail -n +7 | cut -c62-
-          git branches
+          git branch
           echo "::set-output name=hash::$(git log | head -n 7 | tail -n +7 | cut -c62-)"
 
       - name: Get old tc-build commit hash
