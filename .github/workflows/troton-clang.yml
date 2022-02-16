@@ -27,17 +27,18 @@ jobs:
           if [ ${{ matrix.ref }} != latest ]
           then
             git checkout $(git branch | grep ${{ matrix.ref }} | head -n 1 | xargs)
-            hash=$(git log | head -n 7 | tail -n +7 | cut -c62-)
           else
             git checkout $(git branch | sort -r | head -n 1 | xargs)
-            hash=$(git log | head -n 7 | tail -n +7 | cut -c62-)
           fi
-          echo "::set-output name=hash::$hash"
+          echo $(git log | head -n 7 | tail -n +7 | cut -c62-)
+          echo "::set-output name=hash::$(git log | head -n 7 | tail -n +7 | cut -c62-)"
 
       - name: Get old tc-build commit hash
         if: matrix.ref != 'latest'
         id: oldtc
-        run: echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72-)"
+        run: |
+          git log | head -n 9 | tail -n +5 | cut -c72-
+          echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72-)"
 
       - name: Download scripts
         uses: actions/checkout@main
