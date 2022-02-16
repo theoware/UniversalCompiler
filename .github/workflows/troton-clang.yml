@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@main
         with:
           repository: theoware/troton-clang
+          fetch-depth: 0
 
       - name: Get old LLVM commit hash
         id: oldllvm
