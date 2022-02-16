@@ -27,9 +27,9 @@ jobs:
           git fetch --all
           if [ ${{ matrix.ref }} != main ]
           then
-            git checkout $(git branch | sort -r -n | grep ${{ matrix.ref }} | head -n 1 | xargs)
+            git branch | sort -r -n | grep ${{ matrix.ref }} | head -n 1 | xargs
           else
-            git checkout $(git branch | sort -r -n | head -n 1 | xargs)
+            git branch | sort -r -n | head -n 1 | xargs
           fi
           echo "::set-output name=hash::$(git log | head -n 7 | tail -n +7 | cut -c62-)"
 
