@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: [10.0.0, 10.0.1, 11.0.0, 11.0.1, 11.1.0, 12.0.0, 12.0.1, 13.0.0, 13.0.1, 14.0, latest]
+        ref: [10, 11, 12, 13, 14, main]
 
     steps:
 
@@ -24,7 +24,7 @@ jobs:
       - name: Get old LLVM commit hash
         id: oldllvm
         run: |
-          if [ ${{ matrix.ref }} != latest ]
+          if [ ${{ matrix.ref }} != main ]
           then
             git checkout $(git branch | grep ${{ matrix.ref }} | head -n 1 | xargs)
           else
@@ -44,24 +44,18 @@ jobs:
           repository: ClangBuiltLinux/tc-build
 
       - name: Download LLVM
-        if: matrix.ref == 'latest'
+        if: matrix.ref != 'main'
         uses: actions/checkout@main
         with:
           path: llvm-project/
           repository: llvm/llvm-project
+          ref: release/${{ matrix.ref }}.x
 
       - name: Download LLVM
-        if: matrix.ref != 'latest'
         uses: actions/checkout@main
         with:
           path: llvm-project/
           repository: llvm/llvm-project
-          fetch-depth: 0
-
-      - name: Checkout ref
-        if: matrix.ref != 'latest'
-        working-directory: llvm-project/
-        run: git checkout $(git for-each-ref refs/tags --format='%(refname)' --sort=-taggerdate  | cut -c11- | grep llvmorg-${{ matrix.ref }} | head -n 1)
 
       - name: Get new LLVM commit hash
         working-directory: llvm-project/
@@ -77,7 +71,7 @@ jobs:
           echo "newllvm ${{ steps.newllvm.outputs.hash }}"
           echo "oldtc ${{ steps.oldtc.outputs.hash }}"
           echo "newtc ${{ steps.newtc.outputs.hash }}"
-          exit
+          exit -c 128
 
       - name: Install dependencies
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
