@@ -73,6 +73,13 @@ jobs:
         id: newtc
         run: echo "::set-output name=hash::$(git rev-parse HEAD)"
 
+      - run: |
+          echo "oldllvm ${{ steps.oldllvm.outputs.hash }}"
+          echo "newllvm ${{ steps.newllvm.outputs.hash }}"
+          echo "oldtc ${{ steps.oldtc.outputs.hash }}"
+          echo "newtc ${{ steps.newtc.outputs.hash }}"
+          exit
+
       - name: Install dependencies
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
