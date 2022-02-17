@@ -15,10 +15,23 @@ jobs:
 
     steps:
 
+      - name: Cache tc-build
+        uses: actions/cache@main
+        with:
+          path: |
+            ${{ GITHUB.WORKSPACE }}
+            !${{ GITHUB.WORKSPACE }}/c
+            !${{ GITHUB.WORKSPACE }}/llvm-project
+            !${{ GITHUB.WORKSPACE }}/rel_repo
+            !${{ GITHUB.WORKSPACE }}/tc
+          key: tcbuild-${{ GITHUB.SHA }}
+          restore-keys: tcbuild-
+
       - name: Download scripts
         uses: actions/checkout@main
         with:
           repository: ClangBuiltLinux/tc-build
+          clean: 0
 
       - name: Download Troton clang
         uses: actions/checkout@main
@@ -27,6 +40,7 @@ jobs:
           fetch-depth: 0
           path: c/
           ref: ${{ matrix.ref }}
+          clean: 0
 
       - name: Get old LLVM commit hash
         working-directory: c/
@@ -45,6 +59,7 @@ jobs:
           fetch-depth: 0
           path: tc/
           ref: latest
+          clean: 0
 
       - name: Download LLVM
         if: matrix.ref != 'latest'
@@ -53,6 +68,7 @@ jobs:
           path: llvm-project/
           repository: llvm/llvm-project
           ref: release/${{ matrix.ref }}.x
+          clean: 0
 
       - name: Download LLVM
         if: matrix.ref == 'latest'
@@ -60,6 +76,7 @@ jobs:
         with:
           path: llvm-project/
           repository: llvm/llvm-project
+          clean: 0
 
       - name: Get new LLVM commit hash
         working-directory: llvm-project/
@@ -75,7 +92,17 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get upgrade -y
-          sudo apt-get install -y --no-install-recommends bc bison ca-certificates clang cmake curl file flex gcc g++ git libelf-dev libssl-dev lld jq make ninja-build patchelf python3 texinfo xz-utils zlib1g-dev
+          sudo apt-get install -y --no-install-recommends bc bison ca-certificates ccache clang cmake curl file flex gcc g++ git libelf-dev libssl-dev lld jq make ninja-build patchelf python3 texinfo xz-utils zlib1g-dev
+
+      - name: Setup Ccache
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        run: |
+          echo "export USE_CCACHE=1" >> ~/.bashrc
+          echo "export CCACHE_EXEC=/usr/bin/ccache" >> ~/.bashrc
+          echo "ccache -M 15G" >> ~/.bashrc
+          echo "ccache -o compression=true" >> ~/.bashrc
+          echo "ccache --dir /shared/ccache/" >> ~/.bashrc
+          sudo mkdir -p /shared/ccache/
 
       - name: Auth
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -83,18 +110,28 @@ jobs:
           git config --global user.name "${{ secrets.GIT_AUTHOR_NAME }}"
           git config --global user.email "${{ secrets.GIT_AUTHOR_EMAIL }}"
 
+      - name: Cache Ccache
+        uses: actions/cache@main
+        with:
+          path: |
+            /shared/ccache/
+          key: ccache-${{ GITHUB.SHA }}
+          restore-keys: ccache-
+
       - name: Build LLVM
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           PATH="tc/bin:$PATH"
           export PATH
+          clang --version
           ./build-llvm.py \
             --clang-vendor "Troton" \
             --targets "ARM;AArch64;X86" \
             --shallow-clone \
             --no-update \
             --show-build-commands \
-            --no-ccache
+            --defines LLVM_PARALLEL_COMPILE_JOBS=2 LLVM_PARALLEL_LINK_JOBS=2 \
+            --incremental
 
       - name: Build binutils
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -161,14 +198,6 @@ jobs:
           GH_USER: theoware
         run: git clone "https://$GH_USER:$GH_PAT@github.com/$GH_REL_REPO" rel_repo
 
-      - name: Delete old local branch
-        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
-        env:
-          CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
-        working-directory: rel_repo
-        continue-on-error: true
-        run: git branch -D ${{ matrix.ref }}
-
       - name: Delete remote branch
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
@@ -231,12 +260,6 @@ jobs:
         continue-on-error: true
         run: git push --set-upstream origin ${{ matrix.ref }}
 
-      - name: Push
-        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
-        working-directory: rel_repo
-        continue-on-error: true
-        run: git push
-
       - name: Send Telegram notification
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         env:
@@ -263,3 +286,5 @@ jobs:
                   > /dev/null
           }
           tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$BUILD_DESC on LLVM commit [$SHORT_LLVM_COMMIT]($LLVM_COMMIT_URL) with clang version $CLANG_VERSION is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/$CLANG_VERSION)"
+
+      - run: ls -R .
