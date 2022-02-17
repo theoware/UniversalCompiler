@@ -24,8 +24,11 @@ jobs:
             !${{ GITHUB.WORKSPACE }}/llvm-project
             !${{ GITHUB.WORKSPACE }}/rel_repo
             !${{ GITHUB.WORKSPACE }}/tc
-          key: tcbuild-${{ GITHUB.SHA }}
-          restore-keys: tcbuild-
+            !${{ GITHUB.WORKSPACE }}/ccache
+          key: tcbuild-${{ matrix.ref }}-${{ GITHUB.SHA }}
+          restore-keys: |
+            tcbuild-${{ matrix.ref }}
+            tcbuild-
 
       - name: Download scripts
         uses: actions/checkout@main
@@ -103,8 +106,8 @@ jobs:
           echo "export CCACHE_EXEC=/usr/bin/ccache" >> ~/.bashrc
           echo "ccache -M 15G" >> ~/.bashrc
           echo "ccache -o compression=true" >> ~/.bashrc
-          echo "ccache --dir /shared/ccache/" >> ~/.bashrc
-          sudo mkdir -p /shared/ccache/
+          echo "ccache --dir ccache/" >> ~/.bashrc
+          mkdir -p ccache/
 
       - name: Auth
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -117,9 +120,11 @@ jobs:
         uses: actions/cache@main
         with:
           path: |
-            /shared/ccache/
-          key: ccache-${{ GITHUB.SHA }}
-          restore-keys: ccache-
+            ccache/
+          key: ccache-${{ matrix.ref }}-${{ GITHUB.SHA }}
+          restore-keys: |
+            ccache-${{ matrix.ref }}
+            ccache-
 
       - name: Build LLVM
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
