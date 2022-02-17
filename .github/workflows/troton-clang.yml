@@ -37,6 +37,7 @@ jobs:
       - run: git rev-parse HEAD
 
       - name: Download Troton clang
+        continue-on-error: true
         uses: actions/checkout@main
         with:
           repository: theoware/troton-clang
@@ -46,11 +47,13 @@ jobs:
           clean: 0
 
       - name: Get old LLVM commit hash
+        continue-on-error: true
         working-directory: c/
         id: oldllvm
         run: echo "::set-output name=hash::$(git log | head -n 7 | tail -n +7 | cut -c62- | xargs)"
 
       - name: Get old tc-build commit hash
+        continue-on-error: true
         working-directory: c/
         id: oldtc
         run: echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72- | xargs)"
@@ -79,6 +82,7 @@ jobs:
         with:
           path: llvm-project/
           repository: llvm/llvm-project
+          ref: main
           clean: 0
 
       - name: Get new LLVM commit hash
@@ -108,7 +112,6 @@ jobs:
         run: |
           PATH="tc/bin:$PATH"
           export PATH
-          clang --version
           ./build-llvm.py \
             --clang-vendor "Troton" \
             --targets "ARM;AArch64;X86" \
