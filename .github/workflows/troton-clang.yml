@@ -3,7 +3,7 @@ on:
   push:
     paths: .github/workflows/troton-clang.yml
   schedule:
-    - cron: '0 3 * * 0'
+    - cron: '0 3 1 * *'
 
 jobs:
   build:
@@ -12,29 +12,15 @@ jobs:
       fail-fast: false
       matrix:
         ref: [10, 11, 12, 13, 14, latest]
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
 
     steps:
-
-      - name: Cache tc-build
-        uses: actions/cache@main
-        with:
-          path: |
-            install/
-            binutils-*/
-            build/
-            kernel/
-          key: tcbuild-${{ matrix.ref }}-${{ GITHUB.SHA }}
-          restore-keys: |
-            tcbuild-${{ matrix.ref }}
-            tcbuild-
 
       - name: Download scripts
         uses: actions/checkout@main
         with:
           repository: ClangBuiltLinux/tc-build
-          clean: 0
-
-      - run: git rev-parse HEAD
 
       - name: Download Troton clang
         continue-on-error: true
@@ -44,7 +30,6 @@ jobs:
           fetch-depth: 0
           path: c/
           ref: ${{ matrix.ref }}
-          clean: 0
 
       - name: Get old LLVM commit hash
         continue-on-error: true
@@ -65,7 +50,6 @@ jobs:
           fetch-depth: 0
           path: tc/
           ref: latest
-          clean: 0
 
       - name: Download LLVM
         if: matrix.ref != 'latest'
@@ -99,7 +83,24 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get upgrade -y
-          sudo apt-get install -y --no-install-recommends bc bison ca-certificates clang cmake curl file flex gcc g++ git libelf-dev libssl-dev lld jq make ninja-build patchelf python3 texinfo xz-utils zlib1g-dev
+          sudo apt-get install -y --no-install-recommends bc bison ca-certificates ccache clang cmake curl file flex gcc g++ git libelf-dev libssl-dev lld jq make ninja-build patchelf python3 texinfo xz-utils zlib1g-dev
+
+      - name: Cache ccache
+        id: ccache-cache
+        uses: actions/cache@main
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ccache-${{ github.sha }}
+          restore-keys: ccache-
+
+      - name: Setup ccache
+        run: |
+          sudo /usr/sbin/update-ccache-symlinks
+          echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
+          echo 'export CCACHE_EXEC=/usr/bin/ccache' | tee -a ~/.bashrc
+          echo 'export USE_CCACHE=1' | tee -a ~/.bashrc
+          echo 'export PATH="$(pwd)/tc/bin:$PATH"' | tee -a ~/.bashrc
+          source ~/.bashrc
 
       - name: Auth
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
@@ -110,17 +111,13 @@ jobs:
       - name: Build LLVM
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
-          PATH="tc/bin:$PATH"
-          export PATH
           ./build-llvm.py \
             --clang-vendor "Troton" \
             --targets "ARM;AArch64;X86" \
             --shallow-clone \
             --no-update \
-            --no-ccache \
             --show-build-commands \
-            --defines LLVM_PARALLEL_COMPILE_JOBS=2 LLVM_PARALLEL_LINK_JOBS=2 \
-            --incremental
+            --defines LLVM_PARALLEL_COMPILE_JOBS=2 LLVM_PARALLEL_LINK_JOBS=2
 
       - name: Build binutils
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
