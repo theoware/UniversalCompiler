@@ -86,6 +86,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends bc bison ca-certificates ccache clang cmake curl file flex gcc g++ git libelf-dev libssl-dev lld jq make ninja-build patchelf python3 texinfo xz-utils zlib1g-dev
 
       - name: Cache ccache
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         id: ccache-cache
         uses: actions/cache@main
         with:
@@ -94,6 +95,7 @@ jobs:
           restore-keys: ccache-
 
       - name: Setup ccache
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         run: |
           sudo /usr/sbin/update-ccache-symlinks
           echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
@@ -272,5 +274,3 @@ jobs:
                   > /dev/null
           }
           tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$BUILD_DESC on LLVM commit [$SHORT_LLVM_COMMIT]($LLVM_COMMIT_URL) with clang version $CLANG_VERSION is now available: [Git repository](https://github.com/$GH_REL_REPO/tree/${{ matrix.ref }})"
-
-      - run: ls -R .
