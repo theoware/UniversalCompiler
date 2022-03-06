@@ -37,86 +37,70 @@ jobs:
           chmod +x ./convert.sh
           ./convert.sh wim "." 0
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@main
+      - name: Cache telegram-bot-api
+        id: telegram-bot-api
+        uses: actions/cache@main
         with:
-          name: iso
-          path: "*.ISO"
-          if-no-files-found: error
+          path: build/telegram-bot-api
+          key: telegram-bot-api
 
-  upload:
-    name: Upload
-    runs-on: ubuntu-latest
-    needs: build
-    env:
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
-    steps:
+      - name: Install dependencies
+        if: steps.telegram-bot-api.outputs.cache-hit != 'true' 
+        run: |
+          sudo apt-get update || sudo apt-get update
+          sudo apt-get install -y ccache gperf cmake
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update || sudo apt-get update
-        sudo apt-get install -y ccache gperf cmake
+      - name: Setup ccache
+        if: steps.telegram-bot-api.outputs.cache-hit != 'true' 
+        run: |
+          sudo /usr/sbin/update-ccache-symlinks
+          echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
+          echo 'export CCACHE_EXEC=/usr/bin/ccache' | tee -a ~/.bashrc
+          echo 'export USE_CCACHE=1' | tee -a ~/.bashrc
+          source ~/.bashrc
 
-    - name: Cache ccache
-      id: ccache-cache
-      uses: actions/cache@main
-      with:
-        path: ${{ github.workspace }}/.ccache
-        key: ccache-telegram-${{ github.sha }}
-        restore-keys: ccache-telegram-
+      - name: Checkout Telegram bot API
+        if: steps.telegram-bot-api.outputs.cache-hit != 'true' 
+        uses: actions/checkout@main
+        with:
+          repository: tdlib/telegram-bot-api
+          submodules: recursive
 
-    - name: Setup ccache
-      run: |
-        sudo /usr/sbin/update-ccache-symlinks
-        echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
-        echo 'export CCACHE_EXEC=/usr/bin/ccache' | tee -a ~/.bashrc
-        echo 'export USE_CCACHE=1' | tee -a ~/.bashrc
-        source ~/.bashrc
+      - name: Compile the Telegram bot API
+        if: steps.telegram-bot-api.outputs.cache-hit != 'true' 
+        run: |
+          mkdir -p build
+          pushd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake --build .
+          popd
 
-    - name: Checkout Telegram bot API
-      uses: actions/checkout@main
-      with:
-        repository: tdlib/telegram-bot-api
-        submodules: recursive
+      - name: Get file name
+        id: iso
+        run: |
+          echo "::set-output name=name::$(find * -name *.ISO -type f)"
 
-    - name: Compile the Telegram bot API
-      run: |
-        mkdir -p build
-        pushd build
-        cmake -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --target install
-        popd
+      - name: Split files
+        run: |
+          split --bytes=1990000000 --numeric-suffixes $(find * -name *.ISO -type f) $(find * -name *.ISO -type f)
 
-    - name: Download a Build Artifact
-      uses: actions/download-artifact@main
-      with:
-        name: iso
+      - name: Upload the splited ISO to Telegram
+        run: |
+          ./build/telegram-bot-api --api-id=${{ secrets.TELEGRAM_API_ID }} --api-hash=${{ secrets.TELEGRAM_API_HASH }} &
+          if [ -f ${{ steps.iso.outputs.name }}00 ]; 
+          then
+            curl -F document=@"${{ steps.iso.outputs.name }}00" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+          fi
+          if [ -f ${{ steps.iso.outputs.name }}01 ]; 
+          then
+            curl -F document=@"${{ steps.iso.outputs.name }}01" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+          fi
+          if [ -f ${{ steps.iso.outputs.name }}02 ]; 
+          then
+            curl -F document=@"${{ steps.iso.outputs.name }}02" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+          fi
+          if [ -f ${{ steps.iso.outputs.name }}03 ]; 
+          then
+            curl -F document=@"${{ steps.iso.outputs.name }}03" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+          fi
 
-    - name: Get file name
-      id: iso
-      run: |
-        echo "::set-output name=name::$(find * -name *.ISO -type f)"
-
-    - name: Split files
-      run: |
-        split --bytes=1899999999 --numeric-suffixes $(find * -name *.ISO -type f) $(find * -name *.ISO -type f)
-
-    - name: Upload the splited ISO to Telegram
-      run: |
-        telegram-bot-api --api-id=${{ secrets.TELEGRAM_API_ID }} --api-hash=${{ secrets.TELEGRAM_API_HASH }} &
-        if [ -f ${{ steps.iso.outputs.name }}00 ]; 
-        then
-          curl -F document=@"${{ steps.iso.outputs.name }}00" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
-        fi
-        if [ -f ${{ steps.iso.outputs.name }}01 ]; 
-        then
-          curl -F document=@"${{ steps.iso.outputs.name }}01" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
-        fi
-        if [ -f ${{ steps.iso.outputs.name }}02 ]; 
-        then
-          curl -F document=@"${{ steps.iso.outputs.name }}02" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
-        fi
-        if [ -f ${{ steps.iso.outputs.name }}03 ]; 
-        then
-          curl -F document=@"${{ steps.iso.outputs.name }}03" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
-        fi
