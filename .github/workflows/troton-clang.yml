@@ -91,8 +91,10 @@ jobs:
         uses: actions/cache@main
         with:
           path: ${{ github.workspace }}/.ccache
-          key: ccache-${{ github.sha }}
-          restore-keys: ccache-
+          key: ccache-tc-${{ matrix.ref }}-${{ github.sha }}
+          restore-keys: |
+            ccache-tc-${{ matrix.ref }}
+            ccache-tc-
 
       - name: Setup ccache
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
