@@ -93,18 +93,18 @@ jobs:
           ./build/telegram-bot-api --api-id=${{ secrets.TELEGRAM_API_ID }} --api-hash=${{ secrets.TELEGRAM_API_HASH }} &
           if [ -f ${{ steps.iso.outputs.name }}00 ]; 
           then
-            curl -F document=@"${{ steps.iso.outputs.name }}00" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+            curl -F document=@"./${{ steps.iso.outputs.name }}00" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
           fi
           if [ -f ${{ steps.iso.outputs.name }}01 ]; 
           then
-            curl -F document=@"${{ steps.iso.outputs.name }}01" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+            curl -F document=@"./${{ steps.iso.outputs.name }}01" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
           fi
           if [ -f ${{ steps.iso.outputs.name }}02 ]; 
           then
-            curl -F document=@"${{ steps.iso.outputs.name }}02" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+            curl -F document=@"./${{ steps.iso.outputs.name }}02" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
           fi
           if [ -f ${{ steps.iso.outputs.name }}03 ]; 
           then
-            curl -F document=@"${{ steps.iso.outputs.name }}03" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+            curl -F document=@"./${{ steps.iso.outputs.name }}03" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
           fi
 
