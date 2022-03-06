@@ -86,7 +86,7 @@ jobs:
 
       - name: Split files
         run: |
-          split --bytes=1990000000 --numeric-suffixes $(find * -name *.ISO -type f) $(find * -name *.ISO -type f)
+          split --bytes=1900000000 --numeric-suffixes $(find * -name *.ISO -type f) $(find * -name *.ISO -type f)
 
       - name: Upload the splited ISO to Telegram
         run: |
