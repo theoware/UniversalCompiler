@@ -75,6 +75,10 @@ jobs:
           cmake --build .
           popd
 
+      - run: ls -R .
+
+      - run: find * -name *.ISO -type f
+
       - name: Get file name
         id: iso
         run: |
