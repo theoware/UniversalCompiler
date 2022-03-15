@@ -16,6 +16,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      tempScript: "aria2_script.0001.txt"
+      destDir: "UUPs"
     steps:
       - uses: actions/checkout@main
 
@@ -26,16 +29,16 @@ jobs:
 
       - name: Retrieve aria2 script
         run: |
-          aria2c --no-conf --log-level=info --log="aria2_download.log" -o"aria2_script.txt" --allow-overwrite=true --auto-file-renaming=false "https://uupdump.net/get.php?id=${{ github.event.inputs.build }}&pack=${{ github.event.inputs.lang }}&edition=${{ github.event.inputs.edition }}&aria2=2"
+          aria2c --no-conf -o"$tempScript" --allow-overwrite=true --auto-file-renaming=false "https://uupdump.net/get.php?id=${{ github.event.inputs.build }}&pack=${{ github.event.inputs.lang }}&edition=${{ github.event.inputs.edition }}&aria2=2"
 
       - name: Download files
         run: |
-          aria2c --no-conf --log-level=info --log="aria2_download.log" -x16 -s16 -j5 -c -R -d"." -i"aria2_script.txt"
+          aria2c --no-conf --log-level=info --log="aria2_download.log" -x16 -s16 -j5 -c -R -d"$destDir" -i"$tempScript"
 
       - name: Convert
         run: |
           chmod +x ./convert.sh
-          ./convert.sh wim "." 0
+          ./convert.sh wim "$destDir" 0
 
       - name: Cache telegram-bot-api
         id: telegram-bot-api
@@ -74,10 +77,6 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release ..
           cmake --build .
           popd
-
-      - run: ls -R .
-
-      - run: find * -name *.ISO -type f
 
       - name: Get file name
         id: iso
