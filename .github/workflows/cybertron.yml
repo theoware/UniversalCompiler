@@ -32,7 +32,7 @@ jobs:
       uses: actions/checkout@main
       with:
         repository: DhineshCool/cybertron
-        ref: v2.7
+        ref: v2.8
 
     - name: Checkout clang
       uses: actions/checkout@main
@@ -48,7 +48,7 @@ jobs:
         path: AnyKernel3
         ref: payton_cybertron
 
-    - name: Correct names
+    - name: Change names
       run: |
         cd ${{ GITHUB.WORKSPACE }}/clang-llvm/aarch64-linux-gnu/bin
         for file in *; do
