@@ -39,7 +39,7 @@ jobs:
       with:
         repository: theoware/troton-clang
         path: clang-llvm
-        ref: 15.0.0
+        ref: latest
 
     - name: Checkout AnyKernel3
       uses: actions/checkout@main
