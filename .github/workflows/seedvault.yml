@@ -58,7 +58,7 @@ jobs:
     - name: Sign the APKs
       run: |
         echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
-        java -jar uber-apk-signer.jar --apks app/build/outputs/apk/release/*.apk --ks keystore.jks --ksAlias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --ksKeyPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --ksPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} -o signed/
+        java -jar uber-apk-signer.jar --allowResign --apks app/build/outputs/apk/*/*.apk --ks keystore.jks --ksAlias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --ksKeyPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --ksPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} -o signed/
 
     - name: Remove Keystore
       if: always()
