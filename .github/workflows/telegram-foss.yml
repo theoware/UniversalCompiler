@@ -310,7 +310,7 @@ jobs:
 
     - name: Get APK size
       id: size
-      run: echo "::set-output name=num::$(du TMessagesProj-afat-release-aligned-signed.apk | cut -c1-7 | xargs)"
+      run: echo "::set-output name=num::$(du TMessagesProj-afat-release-aligned-signed.apk | cut -c1-6 | xargs)"
 
     - name: Upload the small APK to Telegram
       if: steps.size.outputs.num < '50000'
