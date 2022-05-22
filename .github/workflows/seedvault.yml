@@ -1,0 +1,81 @@
+name: Seedvault
+
+on:
+  push:
+    paths: .github/workflows/seedvault.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      NDK_CCACHE: ${{ github.workspace }}/ccache
+    steps:
+
+    - name: Download neo-backup's source code
+      uses: actions/checkout@main
+      with:
+        repository: seedvault-app/seedvault
+
+    - name: Install dependencies
+      run: |
+        wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
+        echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@main
+      with:
+        java-version: 11
+        distribution: temurin
+        check-latest: true
+        cache: gradle
+
+    - name: Cache NDK licenses
+      id: licenses-cache
+      uses: actions/cache@main
+      with:
+        path: ${{ github.workspace }}/ndk/licenses
+        key: licenses-${{ github.sha }}
+        restore-keys: licenses-
+
+    - name: Install the android NDK
+      if: steps.licenses-cache.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p "${ANDROID_HOME}"
+        curl https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -o ${{ GITHUB.WORKSPACE }}/sdk.zip
+        unzip -d "${ANDROID_HOME}/cmdline-tools/" sdk.zip
+        mv "${ANDROID_HOME}/cmdline-tools/cmdline-tools" "${ANDROID_HOME}/cmdline-tools/latest"
+        rm ${{ GITHUB.WORKSPACE }}/sdk.zip
+        echo 'export PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin"' | tee -a ~/.bashrc
+        source ~/.bashrc
+        yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root="${ANDROID_HOME}"
+
+    - name: Build Seedvault
+      run: |
+        ./gradlew --no-daemon build
+
+    - name: debug
+      run: |
+        ls -R app/build/outputs
+        ls -R app/build/outputs/apk
+
+    - name: Sign the APKs
+      continue-on-error: true
+      run: |
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+        java -jar uber-apk-signer.jar --apks app/build/outputs/apk/debug/*.apk --ks keystore.jks --ksAlias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --ksKeyPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --ksPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} -o signed/
+        java -jar uber-apk-signer.jar --apks app/build/outputs/apk/release/*.apk --ks keystore.jks --ksAlias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --ksKeyPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --ksPass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} -o signed/
+
+    - name: Remove Keystore
+      if: always()
+      run: rm -f keystore.jks
+
+    - name: Upload signed APKs
+      continue-on-error: true
+      uses: actions/upload-artifact@main
+      with:
+        name: signed
+        if-no-files-found: error
+        path: |
+          signed/
