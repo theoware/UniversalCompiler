@@ -58,7 +58,7 @@ jobs:
 
     - name: Setup ccache
       run: |
-        sudo /usr/sbin/update-ccache-symlinks
+        sudo update-ccache-symlinks
         echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
         echo 'export CCACHE_EXEC=/usr/bin/ccache' | tee -a ~/.bashrc
         echo 'export USE_CCACHE=1' | tee -a ~/.bashrc
