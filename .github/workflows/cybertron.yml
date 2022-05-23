@@ -31,7 +31,7 @@ jobs:
     - name: Checkout kernel
       uses: actions/checkout@main
       with:
-        repository: theoware/cybertron
+        repository: DhineshCool/cybertron
         ref: v2.8
 
     - name: Checkout clang
@@ -39,7 +39,7 @@ jobs:
       with:
         repository: theoware/troton-clang
         path: clang-llvm
-        ref: latest
+        ref: 14
 
     - name: Checkout AnyKernel3
       uses: actions/checkout@main
