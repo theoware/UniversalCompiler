@@ -48,6 +48,22 @@ jobs:
         path: AnyKernel3
         ref: payton_cybertron
 
+    - name: Cache ccache
+      id: ccache-cache
+      uses: actions/cache@main
+      with:
+        path: ${{ github.workspace }}/.ccache
+        key: ccache-${{ GITHUB_WORKFLOW }}-${{ GITHUB.SHA }}
+        restore-keys: ccache-
+
+    - name: Setup ccache
+      run: |
+        sudo /usr/sbin/update-ccache-symlinks
+        echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
+        echo 'export CCACHE_EXEC=/usr/bin/ccache' | tee -a ~/.bashrc
+        echo 'export USE_CCACHE=1' | tee -a ~/.bashrc
+        source ~/.bashrc
+
     - name: Change names
       run: |
         cd ${{ GITHUB.WORKSPACE }}/clang-llvm/aarch64-linux-gnu/bin
