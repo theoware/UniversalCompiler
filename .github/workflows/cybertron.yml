@@ -25,7 +25,11 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ MATRIX.RUNNER }}
+    strategy:
+      matrix:
+        runner: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+      fail-fast: false
     steps:
 
     - name: Checkout kernel
