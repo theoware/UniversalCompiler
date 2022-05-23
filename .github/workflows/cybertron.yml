@@ -25,17 +25,13 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ${{ MATRIX.RUNNER }}
-    strategy:
-      matrix:
-        runner: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
-      fail-fast: false
+    runs-on: ubuntu-latest
     steps:
 
     - name: Checkout kernel
       uses: actions/checkout@main
       with:
-        repository: DhineshCool/cybertron
+        repository: theoware/cybertron
         ref: v2.8
 
     - name: Checkout clang
