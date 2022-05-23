@@ -53,7 +53,7 @@ jobs:
       uses: actions/cache@main
       with:
         path: ${{ github.workspace }}/.ccache
-        key: ccache-${{ GITHUB_WORKFLOW }}-${{ GITHUB.SHA }}
+        key: ccache-${{ GITHUB.WORKFLOW }}-${{ GITHUB.SHA }}
         restore-keys: ccache-
 
     - name: Setup ccache
