@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: [10, 11, 12, 13, 14, latest]
+        ref: [14, latest]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
 
@@ -208,7 +208,6 @@ jobs:
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
-        continue-on-error: true
         run: git checkout ${{ matrix.ref }}
 
       - name: Remove old files
@@ -247,7 +246,6 @@ jobs:
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
-        continue-on-error: true
         run: git push --set-upstream origin ${{ matrix.ref }}
 
       - name: Send Telegram notification
