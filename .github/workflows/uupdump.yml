@@ -106,4 +106,3 @@ jobs:
           then
             curl -F document=@"./${{ steps.iso.outputs.name }}03" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
           fi
-

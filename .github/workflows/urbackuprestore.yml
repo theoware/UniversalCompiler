@@ -42,19 +42,3 @@ jobs:
         with:
           name: live-image-amd64.iso
           path: './image_root/live-image-amd64.hybrid.iso'
-
-      - name: Send fail message
-        if: ${{ failure() }}
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: ${{ GITHUB.WORKFLOW }} failed
-
-      - name: Send suceed message
-        if: ${{ !failure() }}
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: ${{ GITHUB.WORKFLOW }} succeeded
