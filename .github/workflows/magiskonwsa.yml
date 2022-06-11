@@ -409,7 +409,7 @@ jobs:
 
       - name: Add extra packages
         run: |
-          wget -qO- "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/archive/$GITHUB_REF.tar.gz" | sudo tar --wildcards -zxvf- --strip-component=2 '*/${{ matrix.arch }}/system/*'
+          wget -qO- "$GITHUB_SERVER_URL/LSPosed/MagiskOnWSA/archive/main.tar.gz" | sudo tar --wildcards -zxvf- --strip-component=2 '*/${{ matrix.arch }}/system/*'
           sudo find system/system/priv-app -type d -exec chmod 0755 {} \;
           sudo find system/system/priv-app -type f -exec chmod 0644 {} \;
           sudo find system/system/priv-app -exec chcon --reference=system/system/priv-app {} \;
@@ -417,7 +417,7 @@ jobs:
       - name: Integrate GApps
         if: ${{ github.event.inputs.gapps_variant != 'none' && github.event.inputs.gapps_variant != '' }}
         run: |
-          wget -qO- "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/archive/$GITHUB_REF.tar.gz" | sudo tar --wildcards -zxvf- --strip-component=2 '*/${{ matrix.arch }}/gapps/*'
+          wget -qO- "$GITHUB_SERVER_URL/LSPosed/MagiskOnWSA/archive/main.tar.gz" | sudo tar --wildcards -zxvf- --strip-component=2 '*/${{ matrix.arch }}/gapps/*'
           shopt -s extglob
           sudo cp -vr gapps/!(product) system/system
           sudo cp -vr gapps/product/* system/product/
