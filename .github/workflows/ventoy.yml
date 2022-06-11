@@ -5,6 +5,10 @@ on:
     paths: .github/workflows/ventoy.yml
   
   workflow_dispatch:
+    inputs: 
+      ref:
+        description: 'Ref to checkout'
+        required: true
 
 jobs:
   build:
@@ -12,11 +16,20 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2.4.2
+      if: github.event.name == push
+      with:
+        repository: ventoy/Ventoy
+
+    - uses: actions/checkout@v2.4.2
+      if: github.event.name == workflow_dispatch
+      with:
+        repository: ventoy/Ventoy
+        ref: ${{ inputs.tags }} 
 
     - name: Run docker-compose up
       run: docker-compose up
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3.1.0
       with:
         name: ventoy-windows
         path: INSTALL/ventoy-*windows*
