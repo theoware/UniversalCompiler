@@ -3,7 +3,12 @@ name: Neo-Backup
 on:
   push:
     paths: .github/workflows/neo-backup.yml
+
   workflow_dispatch:
+    inputs: 
+      ref:
+        description: 'Ref to checkout'
+        required: false
 
 jobs:
   build:
@@ -14,7 +19,7 @@ jobs:
     steps:
 
     - name: Download neo-backup's source code
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: NeoApplications/neo-backup
 
@@ -24,7 +29,7 @@ jobs:
         echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
 
     - name: Setup Java JDK
-      uses: actions/setup-java@main
+      uses: actions/setup-java@v3.3.0
       with:
         java-version: 11
         distribution: temurin
@@ -33,7 +38,7 @@ jobs:
 
     - name: Cache NDK licenses
       id: licenses-cache
-      uses: actions/cache@main
+      uses: actions/cache@v3.0.4
       with:
         path: ${{ github.workspace }}/ndk/licenses
         key: licenses-${{ github.sha }}
@@ -65,7 +70,7 @@ jobs:
       run: rm -f keystore.jks
 
     - name: Upload signed APKs
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3.1.0
       with:
         name: signed
         if-no-files-found: error
@@ -103,7 +108,7 @@ jobs:
     - name: Cache ccache
       if: steps.size.outputs.num > '50000'
       id: ccache-cache
-      uses: actions/cache@main
+      uses: actions/cache@v3.0.4
       with:
         path: ${{ github.workspace }}/.ccache
         key: ccache-${{ github.sha }}
@@ -120,7 +125,7 @@ jobs:
 
     - name: Checkout Telegram bot API
       if: steps.size.outputs.num > '50000'
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: tdlib/telegram-bot-api
         submodules: recursive

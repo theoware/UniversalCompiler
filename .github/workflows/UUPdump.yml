@@ -20,7 +20,7 @@ jobs:
       tempScript: "aria2_script.0001.txt"
       destDir: "UUPs"
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v3.0.2
 
       - name: Install dependencies
         run: |
@@ -42,7 +42,7 @@ jobs:
 
       - name: Cache telegram-bot-api
         id: telegram-bot-api
-        uses: actions/cache@main
+        uses: actions/cache@v3.0.4
         with:
           path: build/telegram-bot-api
           key: telegram-bot-api
@@ -64,7 +64,7 @@ jobs:
 
       - name: Checkout Telegram bot API
         if: steps.telegram-bot-api.outputs.cache-hit != 'true' 
-        uses: actions/checkout@main
+        uses: actions/checkout@v3.0.2
         with:
           repository: tdlib/telegram-bot-api
           submodules: recursive

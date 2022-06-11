@@ -18,13 +18,13 @@ jobs:
     steps:
 
       - name: Download scripts
-        uses: actions/checkout@main
+        uses: actions/checkout@v3.0.2
         with:
           repository: ClangBuiltLinux/tc-build
 
       - name: Download Troton clang
         continue-on-error: true
-        uses: actions/checkout@main
+        uses: actions/checkout@v3.0.2
         with:
           repository: theoware/troton-clang
           fetch-depth: 0
@@ -44,7 +44,7 @@ jobs:
         run: echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72- | xargs)"
 
       - name: Download Troton clang
-        uses: actions/checkout@main
+        uses: actions/checkout@v3.0.2
         with:
           repository: theoware/troton-clang
           fetch-depth: 0
@@ -53,7 +53,7 @@ jobs:
 
       - name: Download LLVM
         if: matrix.ref != 'latest'
-        uses: actions/checkout@main
+        uses: actions/checkout@v3.0.2
         with:
           path: llvm-project/
           repository: llvm/llvm-project
@@ -62,7 +62,7 @@ jobs:
 
       - name: Download LLVM
         if: matrix.ref == 'latest'
-        uses: actions/checkout@main
+        uses: actions/checkout@v3.0.2
         with:
           path: llvm-project/
           repository: llvm/llvm-project
@@ -88,7 +88,7 @@ jobs:
       - name: Cache ccache
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         id: ccache-cache
-        uses: actions/cache@main
+        uses: actions/cache@v3.0.4
         with:
           path: ${{ github.workspace }}/.ccache
           key: ccache-tc-${{ matrix.ref }}-${{ github.sha }}

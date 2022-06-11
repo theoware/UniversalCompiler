@@ -19,29 +19,34 @@ name: DxT Build
 
 on:
   push:
-    paths: .github/workflows/DxT.yml
+    paths: .github/workflows/dxt.yml
+
   workflow_dispatch:
+    inputs: 
+      ref:
+        description: 'Ref to checkout'
+        required: false
 
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout kernel
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: DhineshCool/Dxt_payton
+        ref: ${{ inputs.tags }} 
 
     - name: Checkout clang
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: theoware/troton-clang
         path: clang-llvm
         ref: 13.0.1
 
     - name: Checkout AnyKernel3
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: theoware/AnyKernel3
         path: AnyKernel3

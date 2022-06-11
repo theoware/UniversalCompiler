@@ -4,6 +4,12 @@ on:
   push:
     paths: .github/workflows/telegram-foss.yml
 
+  workflow_dispatch:
+    inputs: 
+      ref:
+        description: 'Ref to checkout'
+        required: false
+
 jobs:
   boringssl:
     name: boringSSL
@@ -14,7 +20,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
@@ -29,7 +35,7 @@ jobs:
 
     - name: Cache boringSSL
       id: boringssl-cache
-      uses: actions/cache@main
+      uses: actions/cache@v3.0.4
       with:
         path: |
           TMessagesProj/jni/boringssl/build/
@@ -86,7 +92,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
@@ -101,7 +107,7 @@ jobs:
 
     - name: Cache FFmpeg
       id: ffmpeg-cache
-      uses: actions/cache@main
+      uses: actions/cache@v3.0.4
       with:
         path: |
           TMessagesProj/jni/ffmpeg/build/
@@ -157,7 +163,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
@@ -172,7 +178,7 @@ jobs:
 
     - name: Cache libvpx
       id: libvpx-cache
-      uses: actions/cache@main
+      uses: actions/cache@v3.0.4
       with:
         path: |
           TMessagesProj/jni/libvpx/build/
@@ -224,7 +230,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
@@ -237,7 +243,7 @@ jobs:
         echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
 
     - name: Setup Java JDK
-      uses: actions/setup-java@main
+      uses: actions/setup-java@v3.3.0
       with:
         java-version: 11
         distribution: temurin
@@ -288,7 +294,7 @@ jobs:
       run: rm -f keystore.jks
 
     - name: Upload signed APKs
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3.1.0
       with:
         name: signed
         path: |
@@ -303,7 +309,7 @@ jobs:
     steps:
 
     - name: Download a Build Artifact
-      uses: actions/download-artifact@main
+      uses: actions/download-artifact@v3.0.0
       with:
         name: signed
         path: signed/
@@ -325,7 +331,7 @@ jobs:
     - name: Cache ccache
       if: steps.size.outputs.num > '50000'
       id: ccache-cache
-      uses: actions/cache@main
+      uses: actions/cache@v3.0.4
       with:
         path: ${{ github.workspace }}/.ccache
         key: ccache-${{ github.sha }}
@@ -342,7 +348,7 @@ jobs:
 
     - name: Checkout Telegram bot API
       if: steps.size.outputs.num > '50000'
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: tdlib/telegram-bot-api
         submodules: recursive

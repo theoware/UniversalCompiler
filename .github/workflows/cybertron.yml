@@ -20,29 +20,33 @@ name: Cybertron Build
 on:
   push:
     paths: .github/workflows/cybertron.yml
+
   workflow_dispatch:
+    inputs: 
+      ref:
+        description: 'Ref to checkout'
+        required: false
 
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout kernel
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: DhineshCool/cybertron
-        ref: v2.8
+        ref: ${{ inputs.tags }} 
 
     - name: Checkout clang
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: theoware/troton-clang
         path: clang-llvm
         ref: 14
 
     - name: Checkout AnyKernel3
-      uses: actions/checkout@main
+      uses: actions/checkout@v3.0.2
       with:
         repository: theoware/AnyKernel3
         path: AnyKernel3
@@ -50,7 +54,7 @@ jobs:
 
     - name: Cache ccache
       id: ccache-cache
-      uses: actions/cache@main
+      uses: actions/cache@v3.0.4
       with:
         path: ${{ github.workspace }}/.ccache
         key: ccache-${{ GITHUB.WORKFLOW }}-${{ GITHUB.SHA }}
