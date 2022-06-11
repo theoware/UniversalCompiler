@@ -16,12 +16,12 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2.4.2
-      if: github.event.name == push
+      if: github.event_name == push
       with:
         repository: ventoy/Ventoy
 
     - uses: actions/checkout@v2.4.2
-      if: github.event.name == workflow_dispatch
+      if: github.event_name == workflow_dispatch
       with:
         repository: ventoy/Ventoy
         ref: ${{ inputs.tags }} 
