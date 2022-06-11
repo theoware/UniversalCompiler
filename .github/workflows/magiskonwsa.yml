@@ -94,7 +94,7 @@ jobs:
         run: |
           pip3 install beautifulsoup4 lxml
           sudo apt-get update && sudo apt-get install setools lzip wine winetricks patchelf
-          wget -qO- "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/archive/$GITHUB_REF.tar.gz" | sudo tar --wildcards -zxvf- -C ~ --strip-component=2 '*/wine/*' '*/linker/*'
+          wget -qO- "$GITHUB_SERVER_URL/LSPosed/MagiskOnWSA/archive/main.tar.gz" | sudo tar --wildcards -zxvf- -C ~ --strip-component=2 '*/wine/*' '*/linker/*'
           winetricks msxml6
           echo "163.172.251.201 store.rg-adguard.net" | sudo tee -a /etc/hosts
 
