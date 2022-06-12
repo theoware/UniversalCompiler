@@ -20,18 +20,99 @@ jobs:
         repository: ventoy/Ventoy
         ref: ${{ inputs.ref }} 
 
-    - name: Run docker-compose up
-      run: docker-compose up
+    - name: Get Ventoy Toolchain
+      run: |
+        wget -q -P DOC/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/dietlibc-0.34.tar.xz
+        wget -q -P DOC/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/musl-1.2.1.tar.gz
+        wget -q -P GRUB2/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/grub-2.04.tar.xz
+        wget -q -O EDK2/edk2-edk2-stable201911.zip https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911
+        wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
+        wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/aarch64--uclibc--stable-2020.08-1.tar.bz2
+        wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
+        sh all_in_one.sh CI
+
+    - name: All in one
+      env:
+        VTOY_PATH: ${{ github.workspace }}
+      run: |
+        cd $VTOY_PATH/DOC
+        cilog "prepare_env ..."
+        sh prepare_env.sh
+
+        export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin:/opt/mips-loongson-gcc7.3-linux-gnu/2019.06-29/bin/:/opt/mips64el-linux-musl-gcc730/bin/
+
+        cilog "build grub2 ..."
+        cd $VTOY_PATH/GRUB2
+        sh buildgrub.sh >> $LOG 2>&1 || exit 1
+
+        cilog "build ipxe ..."
+        cd $VTOY_PATH/IPXE
+        sh buildipxe.sh >> $LOG 2>&1 || exit 1
+
+        cilog "build edk2 ..."
+        cd $VTOY_PATH/EDK2
+        sh buildedk.sh >> $LOG 2>&1 || exit 1
+
+        cd $VTOY_PATH/VtoyTool
+        sh build.sh || exit 1
+
+        cd $VTOY_PATH/vtoycli/fat_io_lib
+        sh buildlib.sh
+
+        cd $VTOY_PATH/vtoycli
+        sh build.sh || exit 1
+
+        cd $VTOY_PATH/FUSEISO
+        sh build_libfuse.sh
+        sh build.sh
+
+
+        cd $VTOY_PATH/ExFAT
+        sh buidlibfuse.sh || exit 1
+        sh buidexfat.sh || exit 1
+        /bin/cp -a EXFAT/shared/mkexfatfs   $VTOY_PATH/INSTALL/tool/mkexfatfs_64
+        /bin/cp -a EXFAT/shared/mount.exfat-fuse   $VTOY_PATH/INSTALL/tool/mount.exfat-fuse_64
+
+
+        cd $VTOY_PATH/SQUASHFS/SRC
+        sh build_lz4.sh
+        sh build_lzma.sh
+        sh build_lzo.sh
+        sh build_zstd.sh
+
+        cd $VTOY_PATH/SQUASHFS/squashfs-tools-4.4/squashfs-tools
+        sh build.sh
+
+        cd $VTOY_PATH/VBLADE/vblade-master
+        sh build.sh
+
+        cd $VTOY_PATH/INSTALL
+
+        if [ "$1" = "CI" ]; then
+            Ver=$(date +%m%d%H%M)
+            sed "s/VENTOY_VERSION=.*/VENTOY_VERSION=\"$Ver\"/"  -i ./grub/grub.cfg
+        fi
+
+    - name: Package
+      run: sh INSTALL/ventoy_pack.sh CI || exit 1
+
+    - name: Extract for upload
+      working-directory: INSTALL
+      run: |
+        mkdir ventoy-linux
+        tar -xf ventoy-*linux* -C ventoy-linux
+        mkdir ventoy-windows
+        unzip ventoy-*windows* -d ventoy-windows
 
     - uses: actions/upload-artifact@v3.1.0
       with:
         name: ventoy-windows
-        path: INSTALL/ventoy-*windows*
+        path: INSTALL/ventoy-windows/
 
     - uses: actions/upload-artifact@v3.1.0
       with:
         name: ventoy-linux
-        path: INSTALL/ventoy-*linux*
+        path: INSTALL/ventoy-linux/
 
     - uses: actions/upload-artifact@v3.1.0
       with:
@@ -42,8 +123,3 @@ jobs:
       with:
         name: SHA256SUM
         path: INSTALL/sha256.txt
-
-    - uses: actions/upload-artifact@v3.1.0
-      with:
-        name: xxx-build-log
-        path: DOC/build.log
