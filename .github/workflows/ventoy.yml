@@ -59,7 +59,8 @@ jobs:
         sh buildedk.sh || exit 1
 
     - name: Package
-      run: sh INSTALL/ventoy_pack.sh CI || exit 1
+      working-directory: INSTALL
+      run: sh ventoy_pack.sh CI || exit 1
 
     - name: Extract for upload
       working-directory: INSTALL
