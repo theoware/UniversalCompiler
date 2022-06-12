@@ -30,6 +30,9 @@ jobs:
         wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/aarch64--uclibc--stable-2020.08-1.tar.bz2
         wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
 
+    - name: Install dependencies
+      run: sudo apt install aclocal
+
     - name: All in one
       env:
         VTOY_PATH: ${{ github.workspace }}
