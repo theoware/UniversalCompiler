@@ -31,7 +31,7 @@ jobs:
         wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
 
     - name: Install dependencies
-      run: sudo apt install aclocal
+      run: sudo apt install autotools-dev automake
 
     - name: All in one
       env:
