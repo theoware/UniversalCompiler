@@ -23,12 +23,15 @@ jobs:
 
     - name: Install dependencies
       run: |
+        yum provides "*/aarch64-linux-gnu-gcc"
+        yum provides "*/mips-linux-gnu-gcc"
         yum -y -q install \
         libXpm net-tools bzip2 wget vim gcc gcc-c++ samba dos2unix glibc-devel glibc.i686 glibc-devel.i686 \
         mpfr.i686 mpfr-devel.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
         flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim musl-gcc \
-        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso lz4 squashfs-tools
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso lz4 squashfs-tools \
+        gcc-mips-linux-gnu gcc-aarch64-linux-gnu
 
     - name: Get Ventoy Toolchain
       run: |
