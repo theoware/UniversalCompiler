@@ -679,6 +679,15 @@ jobs:
           fi
           echo "artifact_name=WSA${name1}${name2}_${{ env.WSA_VER }}_${{ matrix.arch }}_${{ env.WSA_REL }}" >> $GITHUB_ENV
 
+      - name: Archive build
+        run: tar -czvf "${{ env.artifact_name }}.tar.gz" "./${{ matrix.arch }}/*"
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create -R ${{ GITHUB.REPOSITORY }} -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "$(date "+%y.%m.%d.%H.%M.%S")" "${{ env.artifact_name }}.tar.gz"
+
       - name: Upload WSA
         uses: actions/upload-artifact@v3.1.0
         with:
