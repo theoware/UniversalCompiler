@@ -227,9 +227,6 @@ jobs:
     needs: [boringssl, ffmpeg, libvpx]
     env:
       NDK_CCACHE: ${{ github.workspace }}/ccache
-      ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
-      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     steps:
 
     - name: Download Telegram-FOSS's source code
@@ -289,8 +286,8 @@ jobs:
 
     - name: Sign the APKs
       run: |
-        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > keystore.jks
-        java -jar uber-apk-signer.jar --allowResign --apks TMessagesProj/build/outputs/apk/*/* --ks keystore.jks --ksAlias "$ANDROID_KEYSTORE_ALIAS" --ksKeyPass "$ANDROID_KEYSTORE_PASSWORD" --ksPass "$ANDROID_KEYSTORE_PASSWORD" -o signed/
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64}}" | base64 -d > keystore.jks
+        java -jar uber-apk-signer.jar --allowResign --apks TMessagesProj/build/outputs/apk/*/* --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
 
     - name: Remove Keystore
       if: always()
