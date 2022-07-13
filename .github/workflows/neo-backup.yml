@@ -38,7 +38,7 @@ jobs:
 
     - name: Cache NDK licenses
       id: licenses-cache
-      uses: actions/cache@v3.0.4
+      uses: actions/cache@v3.0.5
       with:
         path: ${{ github.workspace }}/ndk/licenses
         key: licenses-${{ github.sha }}
@@ -108,7 +108,7 @@ jobs:
     - name: Cache ccache
       if: steps.size.outputs.num > '50000'
       id: ccache-cache
-      uses: actions/cache@v3.0.4
+      uses: actions/cache@v3.0.5
       with:
         path: ${{ github.workspace }}/.ccache
         key: ccache-${{ github.sha }}
