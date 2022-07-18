@@ -67,10 +67,12 @@ jobs:
 
     - name: Archive build
       working-directory: ./build/
-      run: tar -czvf ${{ env.RELEASE_VERSION }}.tar.gz ${{ env.RELEASE_VERSION }}
+      run: | 
+        tar -czvf ${{ env.RELEASE_VERSION }}.tar.gz ${{ env.RELEASE_VERSION }}
+        sha256sum ${{ env.RELEASE_VERSION }}.tar.gz > ${{ env.RELEASE_VERSION }}.tar.gz.sha256sum
 
     - name: Create release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create -R ${{ GITHUB.REPOSITORY }} -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "$(date "+%y.%m.%d.%H.%M.%S")" "build/${{ env.RELEASE_VERSION }}.tar.gz"
+        gh release create -R ${{ GITHUB.REPOSITORY }} -d -t "$GITHUB_WORKFLOW on $(date "+%A, %d of %B of %Y")" "$(date "+%y.%m.%d.%H.%M.%S")" "build/${{ env.RELEASE_VERSION }}.tar.gz" "build/${{ env.RELEASE_VERSION }}.tar.gz.sha256sum"
