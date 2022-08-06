@@ -107,7 +107,7 @@ jobs:
           source ~/.bashrc
 
       - name: Auth
-        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash && github.event.pull_request != true
         run: |
           git config --global user.name "${{ secrets.GIT_AUTHOR_NAME }}"
           git config --global user.email "${{ secrets.GIT_AUTHOR_EMAIL }}"
@@ -226,7 +226,7 @@ jobs:
         run: git checkout README.md LICENSE
 
       - name: Create commit
-        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash && github.event.pull_request != true
         env:
           BINUTILS_VER: ${{ steps.info.outputs.binutils_ver }}
           BUILDER_COMMIT: ${{ steps.info.outputs.builder_commit }}
@@ -242,14 +242,14 @@ jobs:
           Builder commit: https://github.com/ClangBuiltLinux/tc-build/commit/$BUILDER_COMMIT"
 
       - name: Push
-        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash && github.event.pull_request != true
         env:
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}
         working-directory: rel_repo
         run: git push --set-upstream origin ${{ matrix.ref }}
 
       - name: Send Telegram notification
-        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash && github.event.pull_request != true
         env:
           BUILD_DESC: ${{ steps.info.outputs.build_desc }}
           CLANG_VERSION: ${{ steps.info.outputs.clang_version }}

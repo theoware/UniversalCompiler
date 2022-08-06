@@ -201,6 +201,7 @@ jobs:
         fi
 
     - name: Create release
+      if: github.event.pull_request != true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |

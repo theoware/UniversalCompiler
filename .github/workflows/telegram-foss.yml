@@ -285,6 +285,7 @@ jobs:
         ./gradlew --no-daemon assembleAfatRelease
 
     - name: Sign the APKs
+      if: github.event.pull_request != true
       run: |
         echo "${{ secrets.ANDROID_KEYSTORE_BASE64}}" | base64 -d > keystore.jks
         java -jar uber-apk-signer.jar --allowResign --apks TMessagesProj/build/outputs/apk/*/* --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
@@ -294,6 +295,7 @@ jobs:
       run: rm -f keystore.jks
 
     - name: Upload signed APKs
+      if: github.event.pull_request != true
       uses: actions/upload-artifact@v3.1.0
       with:
         name: signed
@@ -303,6 +305,7 @@ jobs:
   upload:
     name: Upload
     runs-on: ubuntu-latest
+    if: github.event.pull_request != true
     needs: build
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
@@ -314,22 +317,12 @@ jobs:
         name: signed
         path: signed/
 
-    - name: Get APK size
-      id: size
-      run: echo "::set-output name=num::$(du signed/TMessagesProj-afat-release-aligned-signed.apk | cut -d '     ' -f 1)"
-
-    - name: Upload the small APK to Telegram
-      if: ${{ steps.size.outputs.num }} < 50000
-      run: curl -F document=@"signed/TMessagesProj-afat-release-aligned-signed.apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
-
     - name: Install dependencies
-      if: ${{ steps.size.outputs.num }} > 50000
       run: |
         sudo apt-get update || sudo apt-get update
         sudo apt-get install -y ccache gperf cmake
 
     - name: Cache ccache
-      if: ${{ steps.size.outputs.num }} > 50000
       id: ccache-cache
       uses: actions/cache@v3.0.5
       with:
@@ -338,7 +331,6 @@ jobs:
         restore-keys: ccache-
 
     - name: Setup ccache
-      if: ${{ steps.size.outputs.num }} > 50000
       run: |
         sudo /usr/sbin/update-ccache-symlinks
         echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
@@ -347,7 +339,6 @@ jobs:
         source ~/.bashrc
 
     - name: Checkout Telegram bot API
-      if: ${{ steps.size.outputs.num }} > 50000
       uses: actions/checkout@v3.0.2
       with:
         repository: tdlib/telegram-bot-api
@@ -355,7 +346,6 @@ jobs:
         clean: false
 
     - name: Compile the Telegram bot API
-      if: ${{ steps.size.outputs.num }} > 50000
       run: |
         mkdir -p build
         pushd build
@@ -363,8 +353,10 @@ jobs:
         cmake --build . --target install
         popd
 
+    - name: base64 telegram-bot-api
+      run: base64 $(which telegram-bot-api)
+
     - name: Upload the signed APKs to Telegram
-      if: ${{ steps.size.outputs.num }} > 50000
       run: |
         telegram-bot-api --api-id=${{ secrets.TELEGRAM_API_ID }} --api-hash=${{ secrets.TELEGRAM_API_HASH }} &
         curl -F document=@"signed/TMessagesProj-afat-release-aligned-signed.apk" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
