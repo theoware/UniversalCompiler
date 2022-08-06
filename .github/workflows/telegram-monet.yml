@@ -57,7 +57,7 @@ jobs:
         ./gradlew --no-daemon build -x lint -x lintdebug
 
     - name: Sign the APKs
-      if: github.event.pull_request != true
+      if: github.event_name != 'pull_request'
       run: |
         echo "${{ secrets.ANDROID_KEYSTORE_BASE64}}" | base64 -d > keystore.jks
         java -jar uber-apk-signer.jar --allowResign --apks app/build/outputs/apk/*/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
@@ -67,7 +67,7 @@ jobs:
       run: rm -f keystore.jks
 
     - name: Upload signed APKs
-      if: github.event.pull_request != true
+      if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v3.1.0
       with:
         name: signed

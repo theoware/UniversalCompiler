@@ -66,14 +66,14 @@ jobs:
         path: build/${{ env.RELEASE_VERSION }}
 
     - name: Archive build
-      if: github.event.pull_request != true
+      if: github.event_name != 'pull_request'
       working-directory: ./build/
       run: | 
         tar -czvf ${{ env.RELEASE_VERSION }}.tar.gz ${{ env.RELEASE_VERSION }}
         sha256sum ${{ env.RELEASE_VERSION }}.tar.gz > ${{ env.RELEASE_VERSION }}.tar.gz.sha256sum
 
     - name: Create release
-      if: github.event.pull_request != true
+      if: github.event_name != 'pull_request'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
