@@ -20,8 +20,8 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install build-essential automake gtk+2.0 libxss-dev libasound2-dev valgrind
-        wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
-        echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
+        wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O build-android/uber-apk-signer.jar
+        echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 build-android/uber-apk-signer.jar" | sha256sum -c
 
     - name: Build
       working-directory: build-android
