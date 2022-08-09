@@ -10,8 +10,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      NDK_CCACHE: ${{ github.workspace }}/ccache
     steps:
 
     - name: Checkout
@@ -53,3 +51,4 @@ jobs:
     - name: Upload the APK to Telegram
       if: github.event_name != 'pull_request'
       run: curl -F document=@"build-android/signed/principia-release-aligned-signed.apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+      
