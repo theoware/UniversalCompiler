@@ -1,0 +1,63 @@
+name: Principia
+
+on:
+  push:
+    paths: .github/workflows/principia.yml
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      NDK_CCACHE: ${{ github.workspace }}/ccache
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3.0.2
+      with:
+        repository: Bithack/principia
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install build-essential automake gtk+2.0 libxss-dev libasound2-dev valgrind
+        wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
+        echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v3.4.1
+      with:
+        java-version: 11
+        distribution: temurin
+        check-latest: true
+        cache: gradle
+
+    - name: Build
+      working-directory: build-android
+      run: ./gradlew build --no-daemon
+
+    - name: Sign the APKs
+      if: github.event_name != 'pull_request'
+      working-directory: build-android
+      run: |
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64}}" | base64 -d > keystore.jks
+        java -jar uber-apk-signer.jar --allowResign --apks principia/build/outputs/apk/release/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
+
+    - name: Remove Keystore
+      working-directory: build-android
+      if: always()
+      run: rm -f keystore.jks
+
+    - name: Upload signed APKs
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: signed
+        if-no-files-found: error
+        path: |
+          build-android/signed/
+
+    - name: Upload the APK to Telegram
+      if: github.event_name != 'pull_request'
+      run: curl -F document=@"build-android/signed/principia-release-aligned-signed.apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
