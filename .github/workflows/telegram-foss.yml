@@ -266,12 +266,6 @@ jobs:
         wget -q https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
         echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
 
-    - name: Enable System-Emojis
-      run: |
-        sed -i '254s/.*/            useSystemEmoji = preferences.getBoolean("useSystemEmoji", true);/' TMessagesProj/src/main/java/org/telegram/messenger/SharedConfig.java
-        sed -i '239s/.*/            if (MessagesController.getInstance().useSystemEmoji) {/' TMessagesProj/src/main/java/org/telegram/messenger/Emoji.java
-        sed -i '243/.*/            }/' TMessagesProj/src/main/java/org/telegram/messenger/Emoji.java
-
     - name: Setup Java JDK
       uses: actions/setup-java@v3.4.1
       with:
