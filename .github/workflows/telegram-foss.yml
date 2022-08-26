@@ -25,6 +25,12 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
+    - name: Checkout PR
+      uses: dawidd6/action-checkout-pr@v1.2.0
+      with:
+        pr: 622
+        repo: Telegram-FOSS-Team/Telegram-FOSS
+
     - name: Get hashes
       working-directory: TMessagesProj/jni
       id: hash
@@ -97,6 +103,12 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
+    - name: Checkout PR
+      uses: dawidd6/action-checkout-pr@v1.2.0
+      with:
+        pr: 622
+        repo: Telegram-FOSS-Team/Telegram-FOSS
+
     - name: Get hashes
       working-directory: TMessagesProj/jni
       id: hash
@@ -168,6 +180,12 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
+    - name: Checkout PR
+      uses: dawidd6/action-checkout-pr@v1.2.0
+      with:
+        pr: 622
+        repo: Telegram-FOSS-Team/Telegram-FOSS
+
     - name: Get hashes
       working-directory: TMessagesProj/jni
       id: hash
@@ -234,6 +252,12 @@ jobs:
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
+
+    - name: Checkout PR
+      uses: dawidd6/action-checkout-pr@v1.2.0
+      with:
+        pr: 622
+        repo: Telegram-FOSS-Team/Telegram-FOSS
 
     - name: Install dependencies
       run: |
@@ -307,61 +331,3 @@ jobs:
         name: signed
         path: |
           signed/
-
-  upload:
-    name: Upload
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    needs: build
-    env:
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
-    steps:
-
-    - name: Download a Build Artifact
-      uses: actions/download-artifact@v3.0.0
-      with:
-        name: signed
-
-    - name: Install dependencies
-      run: |
-        sudo apt-get update || sudo apt-get update
-        sudo apt-get install -y ccache gperf cmake
-
-    - name: Cache ccache
-      id: ccache-cache
-      uses: actions/cache@v3.0.8
-      with:
-        path: ${{ github.workspace }}/.ccache
-        key: ccache-${{ github.sha }}
-        restore-keys: ccache-
-
-    - name: Setup ccache
-      run: |
-        sudo /usr/sbin/update-ccache-symlinks
-        echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
-        echo 'export CCACHE_EXEC=/usr/bin/ccache' | tee -a ~/.bashrc
-        echo 'export USE_CCACHE=1' | tee -a ~/.bashrc
-        source ~/.bashrc
-
-    - name: Checkout Telegram bot API
-      uses: actions/checkout@v3.0.2
-      with:
-        repository: tdlib/telegram-bot-api
-        submodules: recursive
-        clean: false
-
-    - name: Compile the Telegram bot API
-      run: |
-        mkdir -p build
-        pushd build
-        cmake -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --target install
-        popd
-
-    - name: base64 telegram-bot-api
-      run: base64 $(which telegram-bot-api)
-
-    - name: Upload the signed APKs to Telegram
-      run: |
-        telegram-bot-api --api-id=${{ secrets.TELEGRAM_API_ID }} --api-hash=${{ secrets.TELEGRAM_API_HASH }} &
-        curl -F document=@"signed/TMessagesProj-afat-release-aligned-signed.apk" http://localhost:8081/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
