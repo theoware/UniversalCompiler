@@ -25,12 +25,6 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
-    - name: Checkout PR
-      uses: dawidd6/action-checkout-pr@v1.2.0
-      with:
-        pr: 622
-        repo: Telegram-FOSS-Team/Telegram-FOSS
-
     - name: Get hashes
       working-directory: TMessagesProj/jni
       id: hash
@@ -57,6 +51,10 @@ jobs:
       if: steps.licenses-cache.outputs.cache-hit != 'true' && steps.boringssl-cache.outputs.cache-hit != 'true'
       run: |
         yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root="${ANDROID_HOME}"
+
+    - name: Init submodules if cache didn't hit
+      if: steps.boringssl-cache.outputs.cache-hit != 'true'
+      run: git submodule update --init --recursive --rebase --force
 
     - name: Add API keys
       if: steps.boringssl-cache.outputs.cache-hit != 'true'
@@ -99,12 +97,6 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
-    - name: Checkout PR
-      uses: dawidd6/action-checkout-pr@v1.2.0
-      with:
-        pr: 622
-        repo: Telegram-FOSS-Team/Telegram-FOSS
-
     - name: Get hashes
       working-directory: TMessagesProj/jni
       id: hash
@@ -135,6 +127,10 @@ jobs:
     - name: Add API keys
       if: steps.ffmpeg-cache.outputs.cache-hit != 'true'
       run: echo -e 'APP_ID = 12834\nAPP_HASH = c84d9229db1d6be95c067b02b126352c' > API_KEYS
+
+    - name: Init submodules if cache didn't hit
+      if: steps.boringssl-cache.outputs.cache-hit != 'true'
+      run: git submodule update --init --recursive --rebase --force
 
     - name: Build Telegram-FOSS fake
       if: steps.ffmpeg-cache.outputs.cache-hit != 'true'
@@ -172,12 +168,6 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
-    - name: Checkout PR
-      uses: dawidd6/action-checkout-pr@v1.2.0
-      with:
-        pr: 622
-        repo: Telegram-FOSS-Team/Telegram-FOSS
-
     - name: Get hashes
       working-directory: TMessagesProj/jni
       id: hash
@@ -209,6 +199,10 @@ jobs:
     - name: Add API keys
       if: steps.libvpx-cache.outputs.cache-hit != 'true'
       run: echo -e 'APP_ID = 12834\nAPP_HASH = c84d9229db1d6be95c067b02b126352c' > API_KEYS
+
+    - name: Init submodules if cache didn't hit
+      if: steps.boringssl-cache.outputs.cache-hit != 'true'
+      run: git submodule update --init --recursive --rebase --force
 
     - name: Build Telegram-FOSS fake
       if: steps.libvpx-cache.outputs.cache-hit != 'true'
