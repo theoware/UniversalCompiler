@@ -235,12 +235,6 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
-    - name: Checkout PR
-      uses: dawidd6/action-checkout-pr@v1.2.0
-      with:
-        pr: 622
-        repo: Telegram-FOSS-Team/Telegram-FOSS
-
     - name: Install dependencies
       run: |
         sudo apt-get update || sudo apt-get update
