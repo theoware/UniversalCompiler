@@ -235,6 +235,11 @@ jobs:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
 
+    - name: Checkout PR
+      run: |
+        git fetch origin pull/643/head:pr
+        git checkout pr
+
     - name: Install dependencies
       run: |
         sudo apt-get update || sudo apt-get update
