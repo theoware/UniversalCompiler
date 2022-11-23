@@ -232,13 +232,9 @@ jobs:
     - name: Download Telegram-FOSS's source code
       uses: actions/checkout@v3.1.0
       with:
-        repository: Telegram-FOSS-Team/Telegram-FOSS
+        repository: tehcneko/Telegram-FOSS
         submodules: recursive
-
-    - name: Checkout PR
-      run: |
-        git fetch origin pull/643/head:pr
-        git checkout pr
+        ref: patch-1
 
     - name: Install dependencies
       run: |
