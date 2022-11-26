@@ -17,7 +17,7 @@ jobs:
     - name: Download My-Expenses's source code
       uses: actions/checkout@v3.1.0
       with:
-        repository: theoware/MyExpenses
+        repository: mtotschnig/MyExpenses
 
     - name: Install dependencies
       run: |
