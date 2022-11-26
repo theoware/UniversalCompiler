@@ -52,6 +52,13 @@ jobs:
         source ~/.bashrc
         yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root="${ANDROID_HOME}"
 
+    - name: Apply patches
+      run: |
+        echo ${{ secrets.MYEXPENSES_PATCH1 }} | base64 -d > patch1
+        git am patch1
+        echo ${{ secrets.MYEXPENSES_PATCH2 }} | base64 -d > patch2
+        git am patch2
+
     - name: Build
       run: |
         ./gradlew :myExpenses:packageExternReleaseUniversalApk
