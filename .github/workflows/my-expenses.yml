@@ -52,8 +52,6 @@ jobs:
         source ~/.bashrc
         yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root="${ANDROID_HOME}"
 
-    - run: rm -rf drive mlkit mlkit_* tests
-
     - name: Build
       run: |
         ./gradlew :myExpenses:packageExternReleaseUniversalApk
