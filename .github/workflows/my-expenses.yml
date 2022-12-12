@@ -15,7 +15,7 @@ jobs:
     steps:
 
     - name: Download My-Expenses's source code
-      uses: actions/checkout@v3.1.0
+      uses: actions/checkout@v3.2.0
       with:
         repository: mtotschnig/MyExpenses
 
