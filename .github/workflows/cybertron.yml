@@ -22,10 +22,6 @@ on:
     paths: .github/workflows/cybertron.yml
 
   workflow_dispatch:
-    inputs: 
-      ref:
-        description: 'Ref to checkout'
-        required: false
 
 jobs:
   build:
@@ -36,14 +32,13 @@ jobs:
       uses: actions/checkout@v3.2.0
       with:
         repository: DhineshCool/cybertron
-        ref: ${{ inputs.tags }} 
 
     - name: Checkout clang
       uses: actions/checkout@v3.2.0
       with:
         repository: theoware/troton-clang
         path: clang-llvm
-        ref: 14
+        ref: 15
 
     - name: Checkout AnyKernel3
       uses: actions/checkout@v3.2.0
