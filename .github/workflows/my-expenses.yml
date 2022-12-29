@@ -18,6 +18,7 @@ jobs:
       uses: actions/checkout@v3.2.0
       with:
         repository: theoware/OurExpenses
+        token: ${{ secrets.GH_PAT }}
 
     - name: Install dependencies
       run: |
