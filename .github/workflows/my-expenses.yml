@@ -17,17 +17,12 @@ jobs:
     - name: Download My-Expenses's source code
       uses: actions/checkout@v3.2.0
       with:
-        repository: mtotschnig/MyExpenses
+        repository: theoware/OurExpenses
 
     - name: Install dependencies
       run: |
         wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
         echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
-
-    - name: Auth
-      run: |
-        git config --global user.name "${{ secrets.GIT_AUTHOR_NAME }}"
-        git config --global user.email "${{ secrets.GIT_AUTHOR_EMAIL }}"
 
     - name: Setup Java JDK
       uses: actions/setup-java@v3.9.0
@@ -56,13 +51,6 @@ jobs:
         echo 'export PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin"' | tee -a ~/.bashrc
         source ~/.bashrc
         yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root="${ANDROID_HOME}"
-
-    - name: Apply patches
-      run: |
-        echo "${{ secrets.MYEXPENSES_PATCH1 }}" | base64 -d > patch1
-        git am patch1
-        echo "${{ secrets.MYEXPENSES_PATCH2 }}" | base64 -d > patch2
-        git am patch2
 
     - name: Build
       run: |
