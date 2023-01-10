@@ -38,7 +38,7 @@ jobs:
 
     - name: Cache NDK licenses
       id: licenses-cache
-      uses: actions/cache@v3.2.2
+      uses: actions/cache@v3.2.3
       with:
         path: ${{ github.workspace }}/ndk/licenses
         key: licenses-${{ github.sha }}
