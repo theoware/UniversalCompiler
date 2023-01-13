@@ -77,3 +77,7 @@ jobs:
         if-no-files-found: error
         path: |
           signed/
+
+    - name: Upload the APK to Telegram
+      if: github.event_name != 'pull_request'
+      run: curl -F document=@"signed/myExpenses-extern-release-universal-unsigned.apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
