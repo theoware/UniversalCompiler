@@ -25,7 +25,7 @@ jobs:
 
   build:
     name: Build
-    if: ${{ steps.tag.outputs.tag }}
+    if: env.tag
     runs-on: ubuntu-latest
     env:
       NDK_CCACHE: ${{ github.workspace }}/ccache
