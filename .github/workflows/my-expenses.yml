@@ -9,8 +9,23 @@ on:
   workflow_dispatch:
 
 jobs:
+  tag:
+    name: Get latest tag
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Download My-Expenses's source code
+      uses: actions/checkout@v3.3.0
+      with:
+        repository: mtotschnig/MyExpenses
+
+    - name: Get tag within 7 days
+      id: tag
+      run: echo "TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")" >> $GITHUB_ENV
+
   build:
     name: Build
+    if: ${{ steps.tag.outputs.tag }}
     runs-on: ubuntu-latest
     env:
       NDK_CCACHE: ${{ github.workspace }}/ccache
