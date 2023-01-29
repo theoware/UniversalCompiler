@@ -11,6 +11,8 @@ on:
 jobs:
   tag:
     name: Get latest tag
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     runs-on: ubuntu-latest
     steps:
     
@@ -25,7 +27,7 @@ jobs:
 
   build:
     name: Build
-    if: ${{ env.tag.tag }}
+    if: ${{needs.tag.outputs.tag}}
     runs-on: ubuntu-latest
     env:
       NDK_CCACHE: ${{ github.workspace }}/ccache
