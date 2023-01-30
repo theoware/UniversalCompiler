@@ -32,7 +32,7 @@ jobs:
       run: mkdir build
 
     - name: Ccache caching
-      uses: actions/cache@v3.2.3
+      uses: actions/cache@v3.2.4
       with:
         path: ~/.ccache
         key: ccache-proton-${{ github.sha }}
