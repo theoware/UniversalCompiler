@@ -88,7 +88,7 @@ jobs:
       - name: Cache ccache
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         id: ccache-cache
-        uses: actions/cache@v3.2.4
+        uses: actions/cache@v3.2.5
         with:
           path: ${{ github.workspace }}/.ccache
           key: ccache-tc-${{ matrix.ref }}-${{ github.sha }}
