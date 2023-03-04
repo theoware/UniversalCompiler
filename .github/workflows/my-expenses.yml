@@ -1,11 +1,10 @@
-name: My-Expenses
+name: Build and Sign MyExpenses APK
 
 on:
   schedule:
-  - cron: "0 1  * * 0"
+    - cron: "0 1 * * 0"
   push:
     paths: .github/workflows/my-expenses.yml
-
   workflow_dispatch:
 
 jobs:
@@ -15,7 +14,7 @@ jobs:
       tag: ${{ steps.tag.outputs.tag }}
     runs-on: ubuntu-latest
     steps:
-    
+
     - name: Download My-Expenses's source code
       uses: actions/checkout@v3.3.0
       with:
@@ -24,12 +23,8 @@ jobs:
 
     - name: Get tag within 7 days
       id: tag
-      run: |
-        TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")
-        echo "::set-output name=tag::$TAG"
-        echo $TAG
+      run: echo "${{ format('TAG={0}', runShellCommand('git log --tags --simplify-by-decoration --pretty="format:%d" --since="7 days ago" | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")"')) }}" >> $GITHUB_ENV
 
-    - run: echo $TAG
 
   build:
     name: Build
@@ -41,11 +36,11 @@ jobs:
 
     - name: Download My-Expenses's source code
       uses: actions/checkout@v3.3.0
-      with:
+        with:
         repository: theoware/OurExpenses
         token: ${{ secrets.GH_PAT }}
 
-    - name: Install dependencies
+    - name: Install APK Signer
       run: |
         wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
         echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
@@ -58,31 +53,17 @@ jobs:
         check-latest: true
         cache: gradle
 
-    - name: Cache NDK licenses
-      id: licenses-cache
-      uses: actions/cache@v3.2.6
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
       with:
-        path: ${{ github.workspace }}/ndk/licenses
-        key: licenses-${{ github.sha }}
-        restore-keys: licenses-
-
-    - name: Install the android NDK
-      if: steps.licenses-cache.outputs.cache-hit != 'true'
-      run: |
-        mkdir -p "${ANDROID_HOME}"
-        curl https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -o ${{ GITHUB.WORKSPACE }}/sdk.zip
-        unzip -d "${ANDROID_HOME}/cmdline-tools/" sdk.zip
-        mv "${ANDROID_HOME}/cmdline-tools/cmdline-tools" "${ANDROID_HOME}/cmdline-tools/latest"
-        rm ${{ GITHUB.WORKSPACE }}/sdk.zip
-        echo 'export PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin"' | tee -a ~/.bashrc
-        source ~/.bashrc
-        yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root="${ANDROID_HOME}"
+        sdk-version: '31.0.0'
+        ndk-version: '23.0.7599858'
 
     - name: Build
       run: |
         ./gradlew :myExpenses:packageExternReleaseUniversalApk
 
-    - name: Sign the APKs
+    - name: Sign APK
       if: github.event_name != 'pull_request'
       run: |
         echo "${{ secrets.ANDROID_KEYSTORE_BASE64}}" | base64 -d > keystore.jks
@@ -92,10 +73,10 @@ jobs:
       if: always()
       run: rm -f keystore.jks
 
-    - name: Upload signed APKs
-      if: github.event_name != 'pull_request'
+      - name: Upload APK
+        if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v3.1.2
-      with:
+        with:
         name: signed
         if-no-files-found: error
         path: |
