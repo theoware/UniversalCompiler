@@ -24,13 +24,11 @@ jobs:
 
     - name: Get tag within 7 days
       id: tag
-      run: |
-        git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")"
-        echo "TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")" >> $GITHUB_ENV
+      run: echo "TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")" >> $GITHUB_ENV
 
   build:
     name: Build
-    if: ${{ needs.tag.outputs.tag }}
+    if: ${{ needs.tag.outputs.tag != '' }}
     runs-on: ubuntu-latest
     env:
       NDK_CCACHE: ${{ github.workspace }}/ccache
