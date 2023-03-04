@@ -10,21 +10,19 @@ on:
 jobs:
   tag:
     name: Get latest tag
+    runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
-    runs-on: ubuntu-latest
     steps:
+      - name: Download My-Expenses's source code
+        uses: actions/checkout@v3.3.0
+        with:
+          repository: mtotschnig/MyExpenses
+          fetch-depth: 0
 
-    - name: Download My-Expenses's source code
-      uses: actions/checkout@v3.3.0
-      with:
-        repository: mtotschnig/MyExpenses
-        fetch-depth: 0
-
-    - name: Get tag within 7 days
-      id: tag
-      run: echo "${{ format('TAG={0}', runShellCommand('git log --tags --simplify-by-decoration --pretty="format:%d" --since="7 days ago" | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")"')) }}" >> $GITHUB_ENV
-
+      - name: Get tag within 7 days
+        id: tag
+        run: echo "${{ format('TAG={0}', runShellCommand('git log --tags --simplify-by-decoration --pretty="format:%d" --since="7 days ago" | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")"')) }}" >> $GITHUB_ENV
 
   build:
     name: Build
@@ -33,49 +31,48 @@ jobs:
     env:
       NDK_CCACHE: ${{ github.workspace }}/ccache
     steps:
+      - name: Download My-Expenses's source code
+        uses: actions/checkout@v3.3.0
+        with:
+          repository: theoware/OurExpenses
+          token: ${{ secrets.GH_PAT }}
 
-    - name: Download My-Expenses's source code
-      uses: actions/checkout@v3.3.0
-      with:
-        repository: theoware/OurExpenses
-        token: ${{ secrets.GH_PAT }}
+      - name: Install APK Signer
+        run: |
+          wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
+          echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
 
-    - name: Install APK Signer
-      run: |
-        wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
-        echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.10.0
+        with:
+          java-version: 11
+          distribution: temurin
+          check-latest: true
+          cache: gradle
 
-    - name: Setup Java JDK
-      uses: actions/setup-java@v3.10.0
-      with:
-        java-version: 11
-        distribution: temurin
-        check-latest: true
-        cache: gradle
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          sdk-version: '31.0.0'
+          ndk-version: '23.0.7599858'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
-      with:
-        sdk-version: '31.0.0'
-        ndk-version: '23.0.7599858'
+      - name: Build
+        run: |
+          ./gradlew :myExpenses:packageExternReleaseUniversalApk
 
-    - name: Build
-      run: |
-        ./gradlew :myExpenses:packageExternReleaseUniversalApk
+      - name: Sign APK
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+          java -jar uber-apk-signer.jar --allowResign --apks myExpenses/build/outputs/apk_from_bundle/externRelease/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
 
-    - name: Sign APK
-      if: github.event_name != 'pull_request'
-      run: |
-        echo "${{ secrets.ANDROID_KEYSTORE_BASE64}}" | base64 -d > keystore.jks
-        java -jar uber-apk-signer.jar --allowResign --apks myExpenses/build/outputs/apk_from_bundle/externRelease/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
-
-    - name: Remove Keystore
-      if: always()
-      run: rm -f keystore.jks
-
+      - name: Remove Keystore
+        if: always()
+        run: rm -f keystore.jks
+        
       - name: Upload APK
         if: github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3.1.2
         with:
         name: signed
         if-no-files-found: error
