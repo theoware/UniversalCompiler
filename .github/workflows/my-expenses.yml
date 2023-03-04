@@ -36,7 +36,7 @@ jobs:
 
     - name: Download My-Expenses's source code
       uses: actions/checkout@v3.3.0
-        with:
+      with:
         repository: theoware/OurExpenses
         token: ${{ secrets.GH_PAT }}
 
