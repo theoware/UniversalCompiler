@@ -20,6 +20,7 @@ jobs:
       uses: actions/checkout@v3.3.0
       with:
         repository: mtotschnig/MyExpenses
+        fetch-depth: 0
 
     - name: Get tag within 7 days
       id: tag
