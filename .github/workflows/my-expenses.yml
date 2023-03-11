@@ -11,8 +11,8 @@ jobs:
   tag:
     name: Get latest tag
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.tag.outputs.tag }}
+    env:
+      NDK_CCACHE: ${{ github.workspace }}/ccache
     steps:
       - name: Download My-Expenses's source code
         uses: actions/checkout@v3.3.0
@@ -27,25 +27,21 @@ jobs:
           echo "TAG=$TAG" >> $GITHUB_OUTPUT
           echo $TAG
 
-  build:
-    name: Build
-    if: needs.tag.outputs.tag
-    runs-on: ubuntu-latest
-    env:
-      NDK_CCACHE: ${{ github.workspace }}/ccache
-    steps:
       - name: Download My-Expenses's source code
+        if: ${{ steps.tag.outputs.tag }}
         uses: actions/checkout@v3.3.0
         with:
           repository: theoware/OurExpenses
           token: ${{ secrets.GH_PAT }}
 
       - name: Install APK Signer
+        if: ${{ steps.tag.outputs.tag }}
         run: |
           wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
           echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
 
       - name: Setup Java JDK
+        if: ${{ steps.tag.outputs.tag }}
         uses: actions/setup-java@v3.10.0
         with:
           java-version: 11
@@ -54,27 +50,29 @@ jobs:
           cache: gradle
 
       - name: Setup Android SDK
+        if: ${{ steps.tag.outputs.tag }}
         uses: android-actions/setup-android@v2
         with:
           sdk-version: '31.0.0'
           ndk-version: '23.0.7599858'
 
       - name: Build
+        if: ${{ steps.tag.outputs.tag }}
         run: |
           ./gradlew :myExpenses:packageExternReleaseUniversalApk
 
       - name: Sign APK
-        if: github.event_name != 'pull_request'
+        if: ${{ steps.tag.outputs.tag }} && github.event_name != 'pull_request'
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
           java -jar uber-apk-signer.jar --allowResign --apks myExpenses/build/outputs/apk_from_bundle/externRelease/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
 
       - name: Remove Keystore
-        if: always()
+        if: ${{ steps.tag.outputs.tag }} && always()
         run: rm -f keystore.jks
         
       - name: Upload APK
-        if: github.event_name != 'pull_request'
+        if: ${{ steps.tag.outputs.tag }} && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3.1.2
         with:
           name: signed
@@ -83,5 +81,6 @@ jobs:
             signed/
 
       - name: Upload the APK to Telegram
-        if: github.event_name != 'pull_request'
+        if: ${{ steps.tag.outputs.tag }} && github.event_name != 'pull_request'
         run: curl -F document=@"signed/myExpenses-extern-release-universal-aligned-signed.apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+
