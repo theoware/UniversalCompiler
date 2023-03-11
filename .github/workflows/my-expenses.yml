@@ -22,7 +22,10 @@ jobs:
 
       - name: Get tag within 7 days
         id: tag
-        run: echo "${{ format('TAG={0}', runShellCommand('git log --tags --simplify-by-decoration --pretty="format:%d" --since="7 days ago" | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")"')) }}" >> $GITHUB_ENV
+        run: |
+          TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")
+          echo "::set-output name=tag::$TAG"
+          echo $TAG
 
   build:
     name: Build
