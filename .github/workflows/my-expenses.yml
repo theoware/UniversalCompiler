@@ -24,7 +24,7 @@ jobs:
         id: tag
         run: |
           TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")
-          echo "::set-output name=tag::$TAG"
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
           echo $TAG
 
   build:
