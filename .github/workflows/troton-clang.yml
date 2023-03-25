@@ -116,7 +116,7 @@ jobs:
         run: |
           ./build-llvm.py \
             --vendor-string "Troton" \
-            --targets "ARM,AArch64,X86" \
+            --targets "'AArch64', 'AMDGPU', 'ARM'" \
             --shallow-clone \
             --no-update \
             --show-build-commands \
