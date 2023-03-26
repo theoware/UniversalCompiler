@@ -214,6 +214,9 @@ jobs:
         working-directory: rel_repo
         run: rm -rf *
 
+      - if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
+        run: tree
+
       - name: Copy install
         if: steps.oldllvm.outputs.hash != steps.newllvm.outputs.hash && steps.oldtc.outputs.hash != steps.newtc.outputs.hash
         working-directory: rel_repo
