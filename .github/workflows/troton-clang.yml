@@ -18,13 +18,13 @@ jobs:
     steps:
 
       - name: Download scripts
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
         with:
           repository: ClangBuiltLinux/tc-build
 
       - name: Download Troton clang
         continue-on-error: true
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
         with:
           repository: theoware/troton-clang
           fetch-depth: 0
@@ -44,7 +44,7 @@ jobs:
         run: echo "::set-output name=hash::$(git log | head -n 9 | tail -n +5 | cut -c72- | xargs)"
 
       - name: Download Troton clang
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
         with:
           repository: theoware/troton-clang
           fetch-depth: 0
@@ -53,7 +53,7 @@ jobs:
 
       - name: Download LLVM
         if: matrix.ref != 'latest'
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
         with:
           path: llvm-project/
           repository: llvm/llvm-project
@@ -62,7 +62,7 @@ jobs:
 
       - name: Download LLVM
         if: matrix.ref == 'latest'
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
         with:
           path: llvm-project/
           repository: llvm/llvm-project
