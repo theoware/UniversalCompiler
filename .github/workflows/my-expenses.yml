@@ -44,8 +44,8 @@ jobs:
         if: ${{ steps.tag.outputs.tag }}
         uses: actions/setup-java@v3.11.0
         with:
-          java-version: 11
-          distribution: temurin
+          java-version: 17
+          distribution: oracle
           check-latest: true
           cache: gradle
 
