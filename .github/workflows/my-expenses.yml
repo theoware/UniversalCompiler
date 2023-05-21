@@ -59,7 +59,7 @@ jobs:
           ./gradlew :myExpenses:packageExternReleaseUniversalApk
 
       - name: Sign APK
-        if: ${{ steps.tag.outputs.tag }} && github.event_name != 'pull_request'
+        if: ${{ steps.tag.outputs.tag }} || github.event_name != 'pull_request'
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
           java -jar uber-apk-signer.jar --allowResign --apks myExpenses/build/outputs/apk_from_bundle/externRelease/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
