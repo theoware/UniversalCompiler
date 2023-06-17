@@ -23,7 +23,7 @@ jobs:
       - name: Get tag within 7 days
         id: tag
         run: |
-          TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")
+          TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")
           echo "TAG=$TAG" >> $GITHUB_OUTPUT
           echo $TAG
 
@@ -59,7 +59,7 @@ jobs:
           ./gradlew :myExpenses:packageExternReleaseUniversalApk
 
       - name: Sign APK
-        if: ${{ steps.tag.outputs.tag }} || github.event_name != 'pull_request'
+        if: ${{ steps.tag.outputs.tag }}
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
           java -jar uber-apk-signer.jar --allowResign --apks myExpenses/build/outputs/apk_from_bundle/externRelease/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
