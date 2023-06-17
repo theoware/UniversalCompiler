@@ -69,7 +69,7 @@ jobs:
         run: rm -f keystore.jks
         
       - name: Upload APK
-        if: ${{ steps.tag.outputs.tag }} && github.event_name != 'pull_request'
+        if: ${{ steps.tag.outputs.tag }}
         uses: actions/upload-artifact@v3.1.2
         with:
           name: signed
