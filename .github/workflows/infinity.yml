@@ -42,7 +42,7 @@ jobs:
           apiutils_code=$(cat "$apiutils_file")
           apiutils_code=${apiutils_code//NOe2iKrPPzwscA/${{ secrets.REDDIT_API_TOKEN }}}
           apiutils_code=${apiutils_code//infinity:\/\/localhost/$REDIRECT_URI}
-          apiutils_code=$(echo "$apiutils_code" | sed -E "s/public static final String USER_AGENT = \".*?\";/public static final String USER_AGENT = \"$USER_AGENT\";/")
+          apiutils_code=$(echo "$apiutils_code" | sed -E "s/public static final String USER_AGENT = \".*?\";/public static final String USER_AGENT = \"$USER_AGENT\";/g")
 
           echo "$apiutils_code" > "$apiutils_file"
 
