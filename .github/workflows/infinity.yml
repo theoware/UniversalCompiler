@@ -55,6 +55,7 @@ jobs:
 
       - name: Build
         run: |
+          sed -i 's/org.gradle.jvmargs=-Xmx2048m/org.gradle.jvmargs=-Xmx4096m/' gradle.properties
           ./gradlew assembleRelease
 
       - name: Sign APK
