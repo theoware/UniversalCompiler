@@ -37,11 +37,13 @@ jobs:
 
       - name: Change API
         shell: python
+        env:
+          REDDIT_API_TOKEN: ${{ secrets.REDDIT_API_TOKEN }}
         run: |
           apiutils_file = "app/src/main/java/ml/docilealligator/infinityforreddit/utils/APIUtils.java"
 
           apiutils_code = open(apiutils_file, "r", encoding="utf-8-sig").read()
-          apiutils_code = apiutils_code.replace("NOe2iKrPPzwscA", secrets.REDDIT_API_TOKEN)
+          apiutils_code = apiutils_code.replace("NOe2iKrPPzwscA", REDDIT_API_TOKEN)
           apiutils_code = apiutils_code.replace("infinity://localhost", REDIRECT_URI)
           apiutils_code = re.sub(r'public static final String USER_AGENT = ".*?";', f'public static final String USER_AGENT = "{USER_AGENT}";', apiutils_code)
 
