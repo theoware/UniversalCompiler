@@ -32,15 +32,12 @@ jobs:
           check-latest: true
           cache: gradle
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
       - name: Change API
         shell: python
         run: |
           apiutils_file = "app/src/main/java/ml/docilealligator/infinityforreddit/utils/APIUtils.java"
           REDDIT_API_TOKEN = "${{ secrets.REDDIT_API_TOKEN }}"
-          USER_AGENT = "android:personal-app:0.0.1 (by /u/${{ secrets.REDDIT_USERNAME }})"
+          USER_AGENT = f"android:personal-app:0.0.1 (by /u/${{ secrets.REDDIT_USERNAME }})"
           REDIRECT_URI = "http://127.0.0.1"
 
           apiutils_code = open(apiutils_file, "r", encoding="utf-8-sig").read()
@@ -50,6 +47,9 @@ jobs:
 
           with open(apiutils_file, "w", encoding="utf-8") as f:
             f.write(apiutils_code)
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
 
       - name: Build
         run: |
