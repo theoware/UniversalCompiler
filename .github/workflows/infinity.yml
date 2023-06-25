@@ -35,6 +35,8 @@ jobs:
       - name: Change API
         shell: python
         run: |
+          import re
+
           apiutils_file = "app/src/main/java/ml/docilealligator/infinityforreddit/utils/APIUtils.java"
           REDDIT_API_TOKEN = "${{ secrets.REDDIT_API_TOKEN }}"
           USER_AGENT = f"android:personal-app:0.0.1 (by /u/${{ secrets.REDDIT_USERNAME }})"
