@@ -1,0 +1,71 @@
+name: Infinity APK Build and Sign 
+
+on:
+  push:
+    paths: .github/workflows/my-expenses.yml
+  workflow_dispatch:
+
+jobs:
+  tag:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      NDK_CCACHE: ${{ github.workspace }}/ccache
+      USER_AGENT: android:personal-app:0.0.1 (by /u/${{ secrets.REDDIT_USERNAME }})
+      REDIRECT_URI: .github/workflows/my-expenses.yml
+    steps:
+      - name: Download My-Expenses's source code
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: Docile-Alligator/Infinity-For-Reddit
+
+      - name: Install APK Signer
+        run: |
+          wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.2.1/uber-apk-signer-1.2.1.jar -O uber-apk-signer.jar
+          echo "47ae984df200afbae292d6f950e517afb445d3c902a1edc7717a82c513c5e772 uber-apk-signer.jar" | sha256sum -c
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.11.0
+        with:
+          java-version: 17
+          distribution: oracle
+          check-latest: true
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Change API
+        run: |
+          apiutils_file="app/src/main/java/ml/docilealligator/infinityforreddit/utils/APIUtils.java"
+
+          apiutils_code=$(cat "$apiutils_file")
+          apiutils_code=${apiutils_code//NOe2iKrPPzwscA/${{ secrets.REDDIT_API_TOKEN }}}
+          apiutils_code=${apiutils_code//infinity:\/\/localhost/$REDIRECT_URI}
+          apiutils_code=$(echo "$apiutils_code" | sed -E "s/public static final String USER_AGENT = \".*?\";/public static final String USER_AGENT = \"$USER_AGENT\";/")
+
+          echo "$apiutils_code" > "$apiutils_file"
+
+      - name: Build
+        run: |
+          ./gradlew assembleRelease
+
+      - name: Sign APK
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+          java -jar uber-apk-signer.jar --allowResign --apks myExpenses/build/outputs/apk_from_bundle/externRelease/*.apk --ks keystore.jks --ksAlias "${{ secrets.ANDROID_KEYSTORE_ALIAS }}" --ksKeyPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" --ksPass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -o signed/
+
+      - name: Remove Keystore && always()
+        run: rm -f keystore.jks
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: signed
+          if-no-files-found: error
+          path: |
+            signed/
+
+      - name: Upload the APK to Telegram
+        run: curl -F document=@"signed/myExpenses-extern-release-universal-aligned-signed.apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+
