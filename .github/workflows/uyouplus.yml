@@ -45,8 +45,6 @@ jobs:
   build:
     name: Build uYouPlus
     runs-on: macos-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout Main
@@ -101,10 +99,20 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
+      - name: Caching
+        id: IPA
+        uses: actions/cache@v3.2.0
+        env:
+          cache-name: ${{ inputs.youtube_sha256 }}
+        with:
+          path: main/YouTube.ipa
+          key: ${{ env.cache-name }}
+
       - name: Download YouTube iPA
+        if: steps.IPA.outputs.cache-hit != 'true'
         run: |
           wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
-          echo "$YOUTUBE_SHA256 YouTube.ipa" | sha256sum -c
+          echo "$YOUTUBE_SHA256 YouTube.ipa" | shasum -a 256 -c
 
         env:
           THEOS: ${{ github.workspace }}/theos
