@@ -1,0 +1,142 @@
+# Original idea by @ISnackable. Thanks to him for handling the hardest parts!
+# https://github.com/ISnackable/CercubePlus/blob/main/.github/workflows/Build.yml
+
+name: Build and Release uYouPlus
+
+on:
+  workflow_dispatch:
+    inputs:
+      uyou_version:
+        description: "The version of uYou"
+        default: "3.0"
+        required: true
+        type: string
+      decrypted_youtube_url:
+        description: "The direct URL to the decrypted YouTube ipa"
+        default: "https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EX_tMgOr7PNElkm8lVvPYxIB8TNbO7x_dHc6_v3MkPI-_g"
+        required: true
+        type: string
+      youtube_version:
+        description: "The version of YouTube"
+        default: "18.28.3"
+        required: true
+        type: string
+      youtube_sha256:
+        description: "The sha256 of YouTube"
+        default: "3bf5a95468bda4e37f88a2095ebfa133ef29924aca8db3a76b7ce73349171eeb"
+        required: true
+        type: string
+      bundle_id:
+        description: "Modify the bundle ID. Not recommended"
+        default: "com.google.ios.youtube"
+        required: true
+        type: string
+      app_name:
+        description: "Modify the name of the app on the Home Screen. Not recommended"
+        default: "YouTube"
+        required: true
+        type: string
+  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build uYouPlus
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Main
+        uses: actions/checkout@v3.2.0
+        with:
+          path: main
+          repository: qnblackcat/uYouPlus
+          submodules: recursive
+
+      - name: Install Dependencies
+        run: brew install ldid dpkg make
+
+      - name: Set PATH environment variable
+        run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH 
+
+      - name: Setup Theos
+        uses: actions/checkout@v3.2.0
+        with:
+          repository: theos/theos
+          ref: master
+          path: theos
+          submodules: recursive
+      
+      - name: Caching
+        id: SDK
+        uses: actions/cache@v3.2.0
+        env:
+          cache-name: iOS-15.5-SDK
+        with:
+          path: theos/sdks/
+          key: ${{ env.cache-name }}
+      
+      - name: Download iOS 15.5 SDK
+        if: steps.SDK.outputs.cache-hit != 'true'
+        run: |
+          svn checkout -q https://github.com/chrisharper22/sdks/trunk/iPhoneOS15.5.sdk
+          mv *.sdk $THEOS/sdks
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Setup Theos Jailed
+        uses: actions/checkout@v3.2.0
+        with:
+          repository: qnblackcat/theos-jailed
+          ref: master
+          path: theos-jailed
+          submodules: recursive
+
+      - name: Install Theos Jailed
+        run: |
+          ./theos-jailed/install
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Download YouTube iPA
+        run: |
+          wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
+          echo "$YOUTUBE_SHA256 YouTube.ipa" | sha256sum -c
+
+        env:
+          THEOS: ${{ github.workspace }}/theos
+          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
+          YOUTUBE_SHA256: ${{ inputs.youtube_sha256 }}
+          YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}
+
+      - name: Fix compiling & Build Package
+        id: build_package
+        run: |
+          cd ${{ github.workspace }}/main
+          sed -i '' "27s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
+          sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile          
+          make package IPA=YouTube.ipa FINALPACKAGE=1
+          (mv "packages/$(ls -t packages | head -n1)" "packages/uYouPlus_${{ env.YOUTUBE_VERSION  }}_${{ env.UYOU_VERSION }}.ipa")
+          echo "package=$(ls -t packages | head -n1)" >>$GITHUB_OUTPUT
+          echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
+          echo -e "==> \033[1mBundle ID: ${{ env.BUNDLE_ID }}\033[0m"
+
+        env:
+          THEOS: ${{ github.workspace }}/theos
+          UYOU_VERSION: ${{ inputs.uyou_version }}
+          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
+          BUNDLE_ID: ${{ inputs.bundle_id }}
+          APP_NAME: ${{ inputs.app_name }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.1.1
+        env:
+          UYOU_VERSION: ${{ inputs.uyou_version }}
+          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
+        with:
+          name: uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
+          path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
+          if-no-files-found: error
