@@ -112,7 +112,13 @@ jobs:
         if: steps.IPA.outputs.cache-hit != 'true'
         run: |
           wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
-          echo "$YOUTUBE_SHA256 YouTube.ipa" | shasum -a 256 -c
+          actual=$(shasum -a 256 "YouTube.ipa" | awk '{print $1}')
+          if [ "$actual_checksum" = "$YOUTUBE_SHA256" ]; then
+              echo "Checksums match. The file is authentic."
+          else
+              echo "Checksums do not match. The file may have been tampered with or is different."
+              exit
+          fi
 
         env:
           THEOS: ${{ github.workspace }}/theos
