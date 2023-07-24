@@ -145,6 +145,13 @@ jobs:
           echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
           echo -e "==> \033[1mBundle ID: ${{ env.BUNDLE_ID }}\033[0m"
 
+      - name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v3
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+            ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.1
         env:
