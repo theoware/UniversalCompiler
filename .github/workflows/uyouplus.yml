@@ -1,32 +1,14 @@
 # Original idea by @ISnackable. Thanks to him for handling the hardest parts!
 # https://github.com/ISnackable/CercubePlus/blob/main/.github/workflows/Build.yml
 
-name: Build and Release uYouPlus
+name: uYouPlus
 
 on:
   workflow_dispatch:
-    inputs:
-      uyou_version:
-        description: "The version of uYou"
-        default: "3.0"
-        required: true
-        type: string
-      decrypted_youtube_url:
-        description: "The direct URL to the decrypted YouTube ipa"
-        default: "https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=ESqf-t3PpotChGNMOO2aDuEBgoRC40mHOPdk3oVyasPn2g"
-        required: true
-        type: string
-      youtube_version:
-        description: "The version of YouTube"
-        default: "18.29.1"
-        required: true
-        type: string
-      youtube_sha256:
-        description: "The sha256 of YouTube"
-        default: "165b0c8bb387d947444bc69e81979aa01b2e8a49a4335c01a2436f6bfe50544c"
-        required: true
-        type: string
-  
+
+  push:
+    paths: .github/workflows/uyouplus.yml
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -39,12 +21,12 @@ jobs:
       contents: write
     env:
       THEOS: ${{ github.workspace }}/theos
-      UYOU_VERSION: ${{ inputs.uyou_version }}
-      YOUTUBE_VERSION: ${{ inputs.youtube_version }}
-      YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}
+      UYOU_VERSION: 3.0
+      YOUTUBE_VERSION: 18.28.3
+      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EX_tMgOr7PNElkm8lVvPYxIB8TNbO7x_dHc6_v3MkPI-_g
       BUNDLE_ID: com.google.ios.youtube
       APP_NAME: YouTube
-      YOUTUBE_SHA256: ${{ inputs.youtube_sha256 }}
+      YOUTUBE_SHA256: 3bf5a95468bda4e37f88a2095ebfa133ef29924aca8db3a76b7ce73349171eeb
 
     steps:
       - name: Checkout Main
@@ -99,7 +81,7 @@ jobs:
         id: IPA
         uses: actions/cache@v3.2.0
         env:
-          cache-name: ${{ inputs.youtube_sha256 }}
+          cache-name: $YOUTUBE_SHA256
         with:
           path: main/YouTube.ipa
           key: ${{ env.cache-name }}
@@ -107,7 +89,7 @@ jobs:
       - name: Download YouTube iPA
         if: steps.IPA.outputs.cache-hit != 'true'
         run: |
-          wget "$YOUTUBE_URL" -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
+          wget "$YOUTUBE_URL" -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v$YOUTUBE_VERSION downloaded! \033[0m"
 
       - name: VirusTotal Scan
         uses: crazy-max/ghaction-virustotal@v3
