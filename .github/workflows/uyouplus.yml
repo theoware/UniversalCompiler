@@ -54,7 +54,7 @@ jobs:
       
       - name: Caching
         id: SDK
-        uses: actions/cache@v3.2.0
+        uses: actions/cache@v3.3.1
         env:
           cache-name: iOS-15.5-SDK
         with:
@@ -81,7 +81,7 @@ jobs:
 
       - name: Caching
         id: IPA
-        uses: actions/cache@v3.2.0
+        uses: actions/cache@v3.3.1
         env:
           cache-name: $YOUTUBE_SHA256
         with:
