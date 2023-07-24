@@ -1,42 +1,14 @@
 # Original idea by @ISnackable. Thanks to him for handling the hardest parts!
 # https://github.com/ISnackable/CercubePlus/blob/main/.github/workflows/Build.yml
 
-name: Build and Release uYouPlus
+name: uYouPlus
 
 on:
   workflow_dispatch:
-    inputs:
-      uyou_version:
-        description: "The version of uYou"
-        default: "3.0"
-        required: true
-        type: string
-      decrypted_youtube_url:
-        description: "The direct URL to the decrypted YouTube ipa"
-        default: "https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EX_tMgOr7PNElkm8lVvPYxIB8TNbO7x_dHc6_v3MkPI-_g"
-        required: true
-        type: string
-      youtube_version:
-        description: "The version of YouTube"
-        default: "18.28.3"
-        required: true
-        type: string
-      youtube_sha256:
-        description: "The sha256 of YouTube"
-        default: "3bf5a95468bda4e37f88a2095ebfa133ef29924aca8db3a76b7ce73349171eeb"
-        required: true
-        type: string
-      bundle_id:
-        description: "Modify the bundle ID. Not recommended"
-        default: "com.google.ios.youtube"
-        required: true
-        type: string
-      app_name:
-        description: "Modify the name of the app on the Home Screen. Not recommended"
-        default: "YouTube"
-        required: true
-        type: string
-  
+
+  push:
+    paths: .github/workflows/uyouplus.yml
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -45,6 +17,16 @@ jobs:
   build:
     name: Build uYouPlus
     runs-on: macos-11
+    permissions:
+      contents: write
+    env:
+      THEOS: ${{ github.workspace }}/theos
+      UYOU_VERSION: 3.0
+      YOUTUBE_VERSION: 18.28.3
+      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EX_tMgOr7PNElkm8lVvPYxIB8TNbO7x_dHc6_v3MkPI-_g
+      BUNDLE_ID: com.google.ios.youtube
+      APP_NAME: YouTube
+      YOUTUBE_SHA256: 3bf5a95468bda4e37f88a2095ebfa133ef29924aca8db3a76b7ce73349171eeb
 
     steps:
       - name: Checkout Main
@@ -53,6 +35,7 @@ jobs:
           path: main
           repository: qnblackcat/uYouPlus
           submodules: recursive
+          ref: 6c562736d0f6747b6ba1cca7ab4f54d2977d96a5
 
       - name: Install Dependencies
         run: brew install ldid dpkg make
@@ -82,8 +65,6 @@ jobs:
         run: |
           svn checkout -q https://github.com/chrisharper22/sdks/trunk/iPhoneOS15.5.sdk
           mv *.sdk $THEOS/sdks
-        env:
-          THEOS: ${{ github.workspace }}/theos
 
       - name: Setup Theos Jailed
         uses: actions/checkout@v3.2.0
@@ -96,14 +77,12 @@ jobs:
       - name: Install Theos Jailed
         run: |
           ./theos-jailed/install
-        env:
-          THEOS: ${{ github.workspace }}/theos
 
       - name: Caching
         id: IPA
         uses: actions/cache@v3.2.0
         env:
-          cache-name: ${{ inputs.youtube_sha256 }}
+          cache-name: $YOUTUBE_SHA256
         with:
           path: main/YouTube.ipa
           key: ${{ env.cache-name }}
@@ -111,20 +90,25 @@ jobs:
       - name: Download YouTube iPA
         if: steps.IPA.outputs.cache-hit != 'true'
         run: |
-          wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
+          wget "$YOUTUBE_URL" -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v$YOUTUBE_VERSION downloaded! \033[0m"
+
+      - name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v3
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+            ./main/YouTube.ipa
+
+      - name: Checksum the YouTube iPA
+        run: |
           actual=$(shasum -a 256 "main/YouTube.ipa" | awk '{print $1}')
+          echo $actual
           if [ "$actual" = "$YOUTUBE_SHA256" ]; then
               echo "Checksums match. The file is authentic."
           else
               echo "Checksums do not match. The file may have been tampered with or is different."
               exit 1
           fi
-
-        env:
-          THEOS: ${{ github.workspace }}/theos
-          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
-          YOUTUBE_SHA256: ${{ inputs.youtube_sha256 }}
-          YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}
 
       - name: Fix compiling & Build Package
         id: build_package
@@ -138,19 +122,39 @@ jobs:
           echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
           echo -e "==> \033[1mBundle ID: ${{ env.BUNDLE_ID }}\033[0m"
 
-        env:
-          THEOS: ${{ github.workspace }}/theos
-          UYOU_VERSION: ${{ inputs.uyou_version }}
-          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
-          BUNDLE_ID: ${{ inputs.bundle_id }}
-          APP_NAME: ${{ inputs.app_name }}
+      - name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v3
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+            ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.1
-        env:
-          UYOU_VERSION: ${{ inputs.uyou_version }}
-          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
         with:
           name: uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
           path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
           if-no-files-found: error
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v0.1.15
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        with:
+          tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
+          name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
+          files: main/packages/*.ipa
+          draft: 1
+
+  virustotal:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v3
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+            .exe$
