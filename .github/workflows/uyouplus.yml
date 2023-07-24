@@ -37,6 +37,14 @@ jobs:
     runs-on: macos-11
     permissions:
       contents: write
+    env:
+      THEOS: ${{ github.workspace }}/theos
+      UYOU_VERSION: ${{ inputs.uyou_version }}
+      YOUTUBE_VERSION: ${{ inputs.youtube_version }}
+      YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}
+      BUNDLE_ID: com.google.ios.youtube
+      APP_NAME: YouTube
+      YOUTUBE_SHA256: ${{ inputs.youtube_sha256 }}
 
     steps:
       - name: Checkout Main
@@ -74,8 +82,6 @@ jobs:
         run: |
           svn checkout -q https://github.com/chrisharper22/sdks/trunk/iPhoneOS15.5.sdk
           mv *.sdk $THEOS/sdks
-        env:
-          THEOS: ${{ github.workspace }}/theos
 
       - name: Setup Theos Jailed
         uses: actions/checkout@v3.2.0
@@ -88,8 +94,6 @@ jobs:
       - name: Install Theos Jailed
         run: |
           ./theos-jailed/install
-        env:
-          THEOS: ${{ github.workspace }}/theos
 
       - name: Caching
         id: IPA
@@ -101,8 +105,6 @@ jobs:
           key: ${{ env.cache-name }}
 
       - name: Download YouTube iPA
-        env:
-          YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}
         if: steps.IPA.outputs.cache-hit != 'true'
         run: |
           wget "$YOUTUBE_URL" -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
@@ -115,8 +117,6 @@ jobs:
             ./main/YouTube.ipa
 
       - name: Checksum the YouTube iPA
-        env:
-          YOUTUBE_SHA256: ${{ inputs.youtube_sha256 }}
         run: |
           actual=$(shasum -a 256 "main/YouTube.ipa" | awk '{print $1}')
           echo $actual
@@ -128,12 +128,6 @@ jobs:
           fi
 
       - name: Fix compiling & Build Package
-        env:
-          THEOS: ${{ github.workspace }}/theos
-          UYOU_VERSION: ${{ inputs.uyou_version }}
-          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
-          BUNDLE_ID: com.google.ios.youtube
-          APP_NAME: YouTube
         id: build_package
         run: |
           cd ${{ github.workspace }}/main
@@ -154,9 +148,6 @@ jobs:
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.1
-        env:
-          UYOU_VERSION: ${{ inputs.uyou_version }}
-          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
         with:
           name: uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
           path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
@@ -167,9 +158,6 @@ jobs:
         uses: softprops/action-gh-release@v0.1.15
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          UYOU_VERSION: ${{ inputs.uyou_version }}
-          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
-          DRAFT: ${{ inputs.create_release }}
         with:
           tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
