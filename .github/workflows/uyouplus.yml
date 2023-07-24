@@ -22,11 +22,11 @@ jobs:
     env:
       THEOS: ${{ github.workspace }}/theos
       UYOU_VERSION: 3.0
-      YOUTUBE_VERSION: 18.28.3
-      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EX_tMgOr7PNElkm8lVvPYxIB8TNbO7x_dHc6_v3MkPI-_g
+      YOUTUBE_VERSION: 18.29.1
+      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=ESqf-t3PpotChGNMOO2aDuEBgoRC40mHOPdk3oVyasPn2g
       BUNDLE_ID: com.google.ios.youtube
       APP_NAME: YouTube
-      YOUTUBE_SHA256: 3bf5a95468bda4e37f88a2095ebfa133ef29924aca8db3a76b7ce73349171eeb
+      YOUTUBE_SHA256: 165b0c8bb387d947444bc69e81979aa01b2e8a49a4335c01a2436f6bfe50544c
 
     steps:
       - name: Checkout Main
