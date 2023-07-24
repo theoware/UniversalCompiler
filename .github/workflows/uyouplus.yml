@@ -109,6 +109,8 @@ jobs:
               exit 1
           fi
 
+      - run: wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/Makefile
+
       - name: Fix compiling & Build Package
         id: build_package
         run: |
