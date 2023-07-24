@@ -50,6 +50,7 @@ jobs:
           ref: master
           path: theos
           submodules: recursive
+          ref: 3da31488281ecf4394d10302d2629607f4a1aa07
       
       - name: Caching
         id: SDK
@@ -147,14 +148,9 @@ jobs:
           files: main/packages/*.ipa
           draft: 1
 
-  virustotal:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: VirusTotal Scan
+      - name: VirusTotal Scan
         uses: crazy-max/ghaction-virustotal@v3
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           files: |
-            .exe$
+            .ipa$
