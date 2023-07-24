@@ -13,27 +13,17 @@ on:
         type: string
       decrypted_youtube_url:
         description: "The direct URL to the decrypted YouTube ipa"
-        default: "https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EX_tMgOr7PNElkm8lVvPYxIB8TNbO7x_dHc6_v3MkPI-_g"
+        default: "https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=ESqf-t3PpotChGNMOO2aDuEBgoRC40mHOPdk3oVyasPn2g"
         required: true
         type: string
       youtube_version:
         description: "The version of YouTube"
-        default: "18.28.3"
+        default: "18.29.1"
         required: true
         type: string
       youtube_sha256:
         description: "The sha256 of YouTube"
-        default: "3bf5a95468bda4e37f88a2095ebfa133ef29924aca8db3a76b7ce73349171eeb"
-        required: true
-        type: string
-      bundle_id:
-        description: "Modify the bundle ID. Not recommended"
-        default: "com.google.ios.youtube"
-        required: true
-        type: string
-      app_name:
-        description: "Modify the name of the app on the Home Screen. Not recommended"
-        default: "YouTube"
+        default: "165b0c8bb387d947444bc69e81979aa01b2e8a49a4335c01a2436f6bfe50544c"
         required: true
         type: string
   
@@ -113,6 +103,7 @@ jobs:
         run: |
           wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
           actual=$(shasum -a 256 "main/YouTube.ipa" | awk '{print $1}')
+          echo $actual
           if [ "$actual" = "$YOUTUBE_SHA256" ]; then
               echo "Checksums match. The file is authentic."
           else
@@ -125,6 +116,13 @@ jobs:
           YOUTUBE_VERSION: ${{ inputs.youtube_version }}
           YOUTUBE_SHA256: ${{ inputs.youtube_sha256 }}
           YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}
+
+      - name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v3
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+            ./main/YouTube.ipa
 
       - name: Fix compiling & Build Package
         id: build_package
@@ -142,8 +140,8 @@ jobs:
           THEOS: ${{ github.workspace }}/theos
           UYOU_VERSION: ${{ inputs.uyou_version }}
           YOUTUBE_VERSION: ${{ inputs.youtube_version }}
-          BUNDLE_ID: ${{ inputs.bundle_id }}
-          APP_NAME: ${{ inputs.app_name }}
+          BUNDLE_ID: com.google.ios.youtube
+          APP_NAME: YouTube
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.1
