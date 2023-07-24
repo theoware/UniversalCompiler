@@ -53,22 +53,27 @@ UYOU_BUNDLE = $(UYOU_PATH)/Library/Application\ Support/uYouBundle.bundle
 internal-clean::
 	@rm -rf $(UYOU_PATH)/*
 
-ifneq ($(JAILBROKEN),1)
+ifeq ($(JAILBROKEN),1)
+before-package::
+	@mkdir -p $(THEOS_STAGING_DIR)/Library/Application\ Support; cp -r lang/uYouPlus.bundle $(THEOS_STAGING_DIR)/Library/Application\ Support/
+endif
+
+ifeq ($(JAILBROKEN),1)
+else
 before-all::
 	@if [ ! -f $(UYOU_DEB) ]; then \
 		rm -rf $(UYOU_PATH)/*; \
 		$(PRINT_FORMAT_BLUE) "Downloading uYou"; \
 	fi
 	@if [ ! -f $(UYOU_DEB) ]; then \
- 		curl -s https://miro92.com/repo/debs/com.miro.uyou_$(UYOU_VERSION)_iphoneos-arm.deb -o $(UYOU_DEB); \
- 	fi
+		curl -s https://miro92.com/repo/debs/com.miro.uyou_$(UYOU_VERSION)_iphoneos-arm.deb -o $(UYOU_DEB); \
+	fi
 	@if [ ! -f $(UYOU_DYLIB) ] || [ ! -d $(UYOU_BUNDLE) ]; then \
-		dpkg -x $(UYOU_DEB) $(UYOU_PATH); \
+		tar -xf $(UYOU_DEB) data.tar.xz -C $(UYOU_PATH); \
+		tar -xJf $(UYOU_PATH)/data.tar.xz -C $(UYOU_PATH); \
+		rm -f $(UYOU_PATH)/data.tar.xz; \
 		if [ ! -f $(UYOU_DYLIB) ] || [ ! -d $(UYOU_BUNDLE) ]; then \
 			$(PRINT_FORMAT_ERROR) "Failed to extract uYou"; exit 1; \
 		fi \
 	fi
-else
-before-package::
-	@mkdir -p $(THEOS_STAGING_DIR)/Library/Application\ Support; cp -r lang/uYouPlus.bundle $(THEOS_STAGING_DIR)/Library/Application\ Support/
 endif
