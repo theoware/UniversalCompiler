@@ -111,12 +111,11 @@ jobs:
               exit 1
           fi
 
-      - run: wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/Makefile
-
       - name: Fix compiling & Build Package
         id: build_package
         run: |
           cd ${{ github.workspace }}/main
+          wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/Makefile
           wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/data.tar -O Tweaks/uYou/data.tar
           tar -xf Tweaks/uYou/data.tar* -C Tweaks/uYou
           sed -i '' "27s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
