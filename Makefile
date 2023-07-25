@@ -59,9 +59,6 @@ before-all::
 		rm -rf $(UYOU_PATH)/*; \
 		$(PRINT_FORMAT_BLUE) "Downloading uYou"; \
 	fi
-before-all::
-	@wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/data.tar -O Tweaks/uYou/data.tar
-	@tar -xf Tweaks/uYou/data.tar* -C Tweaks/uYou
 
 before-package::
 	@mkdir -p $(THEOS_STAGING_DIR)/Library/Application\ Support; cp -r lang/uYouPlus.bundle $(THEOS_STAGING_DIR)/Library/Application\ Support/
