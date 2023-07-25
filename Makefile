@@ -54,25 +54,15 @@ internal-clean::
 	@rm -rf $(UYOU_PATH)/*
 
 ifneq ($(JAILBROKEN),1)
-UYOU_PATH = Tweaks/uYou
-UYOU_VERSION = 3.0
-UYOU_DEB = $(UYOU_PATH)/com.miro.uyou_$(UYOU_VERSION)_iphoneos-arm.deb
-UYOU_DYLIB = $(UYOU_PATH)/Library/MobileSubstrate/DynamicLibraries/uYou.dylib
-UYOU_BUNDLE = $(UYOU_PATH)/Library/Application\ Support/uYouBundle.bundle
-
-$(UYOU_DEB):
-	$(PRINT_FORMAT_BLUE) "Downloading uYou..."
-	@curl -s https://miro92.com/repo/debs/com.miro.uyou_$(UYOU_VERSION)_iphoneos-arm.deb -o $(UYOU_DEB)
-
-$(UYOU_DYLIB) $(UYOU_BUNDLE): $(UYOU_DEB)
-	@tar -xf $(UYOU_DEB) -C $(UYOU_PATH)
-	@tar -xf $(UYOU_PATH)/data.tar* -C $(UYOU_PATH)
-	@if [[ ! -f $(UYOU_DYLIB) || ! -d $(UYOU_BUNDLE) ]]; then \
-		$(PRINT_FORMAT_ERROR) "Failed to extract uYou"; exit 1; \
+before-all::
+	@if [[ ! -f $(UYOU_DEB) ]]; then \
+		rm -rf $(UYOU_PATH)/*; \
+		$(PRINT_FORMAT_BLUE) "Downloading uYou"; \
 	fi
+before-all::
+	@wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/data.tar -O Tweaks/uYou/data.tar
+	@tar -xf Tweaks/uYou/data.tar* -C Tweaks/uYou
 
-before-all:: $(UYOU_DYLIB) $(UYOU_BUNDLE)
-endif
 before-package::
 	@mkdir -p $(THEOS_STAGING_DIR)/Library/Application\ Support; cp -r lang/uYouPlus.bundle $(THEOS_STAGING_DIR)/Library/Application\ Support/
 endif
