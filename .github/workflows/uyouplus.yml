@@ -116,6 +116,10 @@ jobs:
         id: build_package
         run: |
           cd ${{ github.workspace }}/main
+          rm -f Makefile
+          wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/Makefile
+          wget https://raw.githubusercontent.com/theoware/UniversalCompiler/main/data.tar -O Tweaks/uYou/data.tar
+          tar -xf Tweaks/uYou/data.tar -C Tweaks/uYou
           sed -i '' "27s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
           sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile          
           make package IPA=YouTube.ipa FINALPACKAGE=1
