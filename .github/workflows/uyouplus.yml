@@ -24,11 +24,11 @@ jobs:
     env:
       THEOS: ${{ github.workspace }}/theos
       UYOU_VERSION: 3.0
-      YOUTUBE_VERSION: 18.29.1
-      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=ESqf-t3PpotChGNMOO2aDuEBgoRC40mHOPdk3oVyasPn2g
-      BUNDLE_ID: com.google.ios.youtube
+      YOUTUBE_VERSION: 18.30.7
+      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EeLkz7Ku7uxJmlMKIHMY7fAB3L9BC5YgrHjnZZmak8v13Q
+      BUNDLE_ID: com.definitely.not.youtube
       APP_NAME: YouTube
-      YOUTUBE_SHA256: 165b0c8bb387d947444bc69e81979aa01b2e8a49a4335c01a2436f6bfe50544c
+      YOUTUBE_SHA256: 95e88db35ab886af52dad6a6388533633764b0586ed67a30439e80a2f7e75b9b
 
     steps:
       - name: Checkout Main
@@ -94,6 +94,7 @@ jobs:
           wget "$YOUTUBE_URL" -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v$YOUTUBE_VERSION downloaded! \033[0m"
 
       - name: VirusTotal Scan
+        if: steps.IPA.outputs.cache-hit != 'true'
         uses: crazy-max/ghaction-virustotal@v3
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
