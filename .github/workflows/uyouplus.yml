@@ -145,7 +145,7 @@ jobs:
           tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
-          body: ${{ steps.build_package.outputs.analysis }}
+          body: ${{ steps.vt.outputs.analysis }}
 
       - uses: sgpublic/delete-release-action@v1.1
         with:
