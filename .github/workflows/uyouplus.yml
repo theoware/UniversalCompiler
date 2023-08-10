@@ -7,9 +7,7 @@ on:
   workflow_dispatch:
 
   push:
-    paths: |
-      .github/workflows/uyouplus.yml
-      Makefile
+    paths: .github/workflows/uyouplus.yml
 
 jobs:
   build:
@@ -113,7 +111,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}/main
           git submodule update --recursive 
-          tar -xf Tweaks/uYou/data.tar -C Tweaks/uYou
           sed -i '' "27s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
           sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile          
           make package IPA=YouTube.ipa FINALPACKAGE=1
