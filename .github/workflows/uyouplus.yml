@@ -11,19 +11,19 @@ on:
       .github/workflows/uyouplus.yml
       Makefile
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+
+
+
 
 jobs:
   build:
     name: Build uYouPlus
-    runs-on: macos-11
+    runs-on: macos-latest
     permissions:
       contents: write
     env:
       THEOS: ${{ github.workspace }}/theos
-      UYOU_VERSION: 3.0
+      UYOU_VERSION: 3.0.1
       YOUTUBE_VERSION: 18.30.7
       YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EeLkz7Ku7uxJmlMKIHMY7fAB3L9BC5YgrHjnZZmak8v13Q
       BUNDLE_ID: com.definitely.not.youtube
@@ -35,9 +35,9 @@ jobs:
         uses: actions/checkout@v3.5.3
         with:
           path: main
-          repository: qnblackcat/uYouPlus
+          repository: arichorn/uYouPlusExtra
           submodules: recursive
-          ref: 7996b43b11838cad9272e952a1ef56d4fccf80cd
+
 
       - name: Install Dependencies
         run: brew install ldid dpkg make
