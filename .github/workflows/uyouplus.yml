@@ -20,7 +20,7 @@ jobs:
       UYOU_VERSION: 3.0.1
       YOUTUBE_VERSION: 18.30.7
       YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EeLkz7Ku7uxJmlMKIHMY7fAB3L9BC5YgrHjnZZmak8v13Q
-      BUNDLE_ID: com.definitely.not.youtube
+      BUNDLE_ID: com.google.ios.youtube
       APP_NAME: YouTube
       YOUTUBE_SHA256: 95e88db35ab886af52dad6a6388533633764b0586ed67a30439e80a2f7e75b9b
 
