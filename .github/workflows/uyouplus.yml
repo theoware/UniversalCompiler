@@ -123,6 +123,7 @@ jobs:
         uses: crazy-max/ghaction-virustotal@v3
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
+          request_rate: 4
           files: |
             ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
 
@@ -144,9 +145,16 @@ jobs:
           name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
 
-      - name: VirusTotal Scan
-        uses: crazy-max/ghaction-virustotal@v3
+      - uses: sgpublic/delete-release-action@v1.1
         with:
-          vt_api_key: ${{ secrets.VT_API_KEY }}
-          files: |
-            .ipa$
+          repo: theoware/Altstore
+          release-drop: true
+          release-keep-count: 3
+          release-drop-tag: true
+          pre-release-drop: true
+          pre-release-keep-count: -1
+          pre-release-drop-tag: true
+          draft-drop: true
+          draft-drop-count: -1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
