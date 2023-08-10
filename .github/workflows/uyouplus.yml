@@ -149,7 +149,7 @@ jobs:
         with:
           repo: theoware/Altstore
           release-drop: true
-          release-keep-count: 3
+          release-keep-count: 2
           release-drop-tag: true
           pre-release-drop: true
           pre-release-keep-count: -1
