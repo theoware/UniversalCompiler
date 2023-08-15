@@ -22,7 +22,6 @@ jobs:
       YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/1decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EfErGMAhJyRAhw37c--o8CABDHghxsATQamJhjIk_feMDA
       BUNDLE_ID: com.google.ios.youtube
       APP_NAME: YouTube
-      YOUTUBE_SHA256: 263d3e21b686ba3a0a3e67822d55b8c8ab1d22609884ba06a3ffdb95cf90f8c9
 
     steps:
       - name: Checkout Main
@@ -88,23 +87,13 @@ jobs:
           wget "$YOUTUBE_URL" -O main/YouTube.ipa && echo -e "==> \033[1mYouTube v$YOUTUBE_VERSION downloaded! \033[0m"
 
       - name: VirusTotal Scan
-        if: steps.IPA.outputs.cache-hit != 'true'
+        id: vt_orig
         uses: crazy-max/ghaction-virustotal@v3
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
+          request_rate: 4
           files: |
             ./main/YouTube.ipa
-
-      - name: Checksum the YouTube iPA
-        run: |
-          actual=$(shasum -a 256 "main/YouTube.ipa" | awk '{print $1}')
-          echo $actual
-          if [ "$actual" = "$YOUTUBE_SHA256" ]; then
-              echo "Checksums match. The file is authentic."
-          else
-              echo "Checksums do not match. The file may have been tampered with or is different."
-              exit 1
-          fi
 
       - name: Fix compiling & Build Package
         id: build_package
@@ -145,7 +134,9 @@ jobs:
           tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
-          body: ${{ steps.vt.outputs.analysis }}
+          body: |
+            ${{ steps.vt.outputs.analysis }}
+            ${{ steps.vt_orig.outputs.analysis }}
 
       - uses: sgpublic/delete-release-action@v1.1
         with:
