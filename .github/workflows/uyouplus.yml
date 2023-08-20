@@ -30,6 +30,7 @@ jobs:
           path: main
           repository: arichorn/uYouPlusExtra
           submodules: recursive
+          ref: 26cd4536cb9a265dee24eae04919b829e43c17ae
 
       - name: Set up Rclone
         uses: AnimMouse/setup-rclone@v1.5.1
