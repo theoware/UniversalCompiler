@@ -31,6 +31,11 @@ jobs:
           repository: arichorn/uYouPlusExtra
           submodules: recursive
 
+      - name: Set up Rclone
+        uses: AnimMouse/setup-rclone@v1.5.1
+        with:
+          rclone_config: ${{ secrets.RCLONE_CONFIG }}
+
       - name: Install Dependencies
         run: brew install ldid dpkg make
 
@@ -123,6 +128,8 @@ jobs:
           name: uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
           path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
           if-no-files-found: error
+
+      - run: rclone copyto ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }} d:YouTube.ipa
 
       - name: Create Release
         id: create_release
