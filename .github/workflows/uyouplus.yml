@@ -91,8 +91,7 @@ jobs:
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           request_rate: 4
-          files: |
-            ./main/YouTube.ipa
+          files: ./main/YouTube.ipa
 
       - name: Fix Compiling & Build Package
         id: build_package
@@ -136,8 +135,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
           repository: theoware/Altstore
-          tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
-          name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
+          tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.YTLITEPLUS_VERSION }}-(${{ github.run_number }})
+          name: v${{ env.YOUTUBE_VERSION }}-${{ env.YTLITEPLUS_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
           body: |
             ${{ steps.vt.outputs.analysis }}
