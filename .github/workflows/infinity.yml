@@ -15,7 +15,7 @@ jobs:
       REDIRECT_URI: http://127.0.0.1
     steps:
       - name: Download Infinity's source code
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.0.0
         with:
           repository: Docile-Alligator/Infinity-For-Reddit
 
