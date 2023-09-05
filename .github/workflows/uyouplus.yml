@@ -122,7 +122,7 @@ jobs:
       - name: Prepare Release Notes
         run: |
           export TODAY=$(date '+%Y-%m-%d')
-          sed "s/%ytliteplus_version%/${{ YTLITEPLUS_VERSION }}/g; s/%youtube_version%/${{ env.YOUTUBE_VERSION }}/g; s/%date%/$TODAY/g" \
+          sed "s/%ytliteplus_version%/${{ env.YTLITEPLUS_VERSION }}/g; s/%youtube_version%/${{ env.YOUTUBE_VERSION }}/g; s/%date%/$TODAY/g" \
           main/.github/RELEASE_TEMPLATE/Release.md > ${{ github.workspace }}/release_notes.md
 
       - name: Create Release
