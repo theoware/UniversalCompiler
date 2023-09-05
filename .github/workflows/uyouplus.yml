@@ -78,12 +78,12 @@ jobs:
       - name: Prepare YouTube iPA
         run: |
           wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa
-          echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} downloaded! \033[0m"
+          echo -e "==> \033[1mYouTube v${{ env.YOUTUBE_VERSION }} downloaded! \033[0m"
           unzip -q main/YouTube.ipa -d main/tmp
           rm -rf main/tmp/Payload/YouTube.app/_CodeSignature/CodeResources
           rm -rf main/tmp/Payload/YouTube.app/PlugIns/*
           cp -R main/Extensions/*.appex main/tmp/Payload/YouTube.app/PlugIns
-          echo -e "==> \033[1mYouTube v${{ inputs.youtube_version }} unpacked! \033[0m"
+          echo -e "==> \033[1mYouTube v${{ env.YOUTUBE_VERSION }} unpacked! \033[0m"
 
       - name: VirusTotal Scan
         id: vt_orig
@@ -100,7 +100,7 @@ jobs:
           cd ${{ github.workspace }}/main
           sed -i '' "12s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
           sed -i '' "11s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile
-          sed -i '' "s/^PACKAGE_VERSION.*$/PACKAGE_VERSION = ${{ inputs.youtube_version }}-${{  }}/" Makefile
+          sed -i '' "s/^PACKAGE_VERSION.*$/PACKAGE_VERSION = ${{ env.YOUTUBE_VERSION }}-${{  }}/" Makefile
           make package FINALPACKAGE=1
           (mv "packages/$(ls -t packages | head -n1)" "packages/YTLitePlus_${{ env.YOUTUBE_VERSION }}_${{ env.ytliteplus_version }}.ipa")        
           echo "package=$(ls -t packages | head -n1)" >>$GITHUB_OUTPUT
@@ -125,7 +125,7 @@ jobs:
       - name: Prepare Release Notes
         run: |
           export TODAY=$(date '+%Y-%m-%d')
-          sed "s/%ytliteplus_version%/${{  }}/g; s/%youtube_version%/${{ inputs.youtube_version }}/g; s/%date%/$TODAY/g" \
+          sed "s/%ytliteplus_version%/${{  }}/g; s/%youtube_version%/${{ env.YOUTUBE_VERSION }}/g; s/%date%/$TODAY/g" \
           main/.github/RELEASE_TEMPLATE/Release.md > ${{ github.workspace }}/release_notes.md
 
       - name: Create Release
