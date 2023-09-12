@@ -87,7 +87,7 @@ jobs:
 
       - name: VirusTotal Scan
         id: vt_orig
-        uses: crazy-max/ghaction-virustotal@v3
+        uses: crazy-max/ghaction-virustotal@v4
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           request_rate: 4
@@ -109,7 +109,7 @@ jobs:
 
       - name: VirusTotal Scan
         id: vt
-        uses: crazy-max/ghaction-virustotal@v3
+        uses: crazy-max/ghaction-virustotal@v4
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           request_rate: 4
