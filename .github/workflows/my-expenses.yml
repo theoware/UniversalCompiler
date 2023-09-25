@@ -51,7 +51,7 @@ jobs:
 
       - name: Setup Android SDK
         if: ${{ steps.tag.outputs.tag }}
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
 
       - name: Build
         if: ${{ steps.tag.outputs.tag }}
