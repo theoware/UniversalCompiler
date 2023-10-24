@@ -30,7 +30,7 @@ jobs:
           repository: Balackburn/YTLitePlus
 
       - name: Set up Rclone
-        uses: AnimMouse/setup-rclone@v1.5.1
+        uses: AnimMouse/setup-rclone@v1.6.0
         with:
           rclone_config: ${{ secrets.RCLONE_CONFIG }}
 
