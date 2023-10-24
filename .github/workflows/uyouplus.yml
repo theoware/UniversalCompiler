@@ -15,8 +15,8 @@ jobs:
     env:
       THEOS: ${{ github.workspace }}/theos
       YTLITEPLUS_VERSION: 2.3.1
-      YOUTUBE_VERSION: 18.41.2
-      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/2decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EU7dLLv3n7hBoiOGBZ5Mw2sB0VMQ-v1qZwDBxAFhy6TBVg
+      YOUTUBE_VERSION: 18.41.5
+      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/2decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=EaMY6kajYrNCigTVt9lWd9YBzoizT2p0jRlYXA9X_1qhUA
       BUNDLE_ID: com.google.ios.youtube
       APP_NAME: YouTube
       CREATE_RELEASE_DRAFT: true
