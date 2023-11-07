@@ -14,7 +14,7 @@ jobs:
       contents: write
     env:
       THEOS: ${{ github.workspace }}/theos
-      YTLITEPLUS_VERSION: 2.3.1
+      YTLITEPLUS_VERSION: 3.0.1
       YOUTUBE_VERSION: 18.43.4
       YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/2decrypt_und3fy_onmicrosoft_com/_layouts/15/download.aspx?share=Ebh7gmE5m4xKr1p3GQ-vRGABuZ0XwLp2DEswzF1zGZJ2Uw
       BUNDLE_ID: com.google.ios.youtube
@@ -27,12 +27,7 @@ jobs:
         with:
           path: main
           submodules: recursive
-          repository: Balackburn/YTLitePlus
-
-      - name: Set up Rclone
-        uses: AnimMouse/setup-rclone@v1.7.0
-        with:
-          rclone_config: ${{ secrets.RCLONE_CONFIG }}
+          repository: arichorn/uYouPlusExtra
 
       - name: Install Dependencies
         run: brew install ldid dpkg make
