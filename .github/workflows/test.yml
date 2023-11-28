@@ -1,0 +1,42 @@
+name: Test
+on:
+  # This workflow can be triggered manually via GitHub Actions workflow_dispatch
+  workflow_dispatch:
+
+jobs:
+  ocr:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Cache APT packages to speed up package installation
+      - name: Cache APT packages
+        uses: awalsh128/cache-apt-pkgs-action@v1.3.1
+        with:
+          packages: ocrmypdf img2pdf tesseract-ocr-deu tesseract-ocr-spa
+
+      # Step 2: Set up Rclone for remote file operations
+      - name: Set up Rclone
+        uses: AnimMouse/setup-rclone@v1.7.0
+        with:
+          rclone_config: ${{ secrets.RCLONE_CONFIG }}
+
+      # Step 3: Download files from the remote 'OfficeMobile' directory
+      - name: Download files using Rclone
+        run: |
+          rclone move -P "o:OfficeMobile/" .
+          rclone rmdirs --leave-root -P "o:OfficeMobile/"
+
+      # Step 4: Perform OCR and convert images to PDFs
+      - name: OCR and Convert to PDF
+        run: |
+          find * -type f | while read -r image; do
+              if [ -f "$image" ]; then
+                  # Create a destination directory and convert the image to PDF
+                  mkdir -p "out/$(dirname "$image")"
+                  img2pdf --pagesize A4 "$image" | ocrmypdf --rotate-pages-threshold 2 -l deu+eng+spa -r -i --output-type pdf --optimize 1 - "out/$(basename "$image").pdf"
+                  mv "$image" out/$(basename "$image")
+                  # Move the PDF to the 'OfficeMobile' directory and print the image name
+                  rclone move -P out/ "o:OfficeMobile_OCR/"
+                  echo "Processed: $image"
+              fi
+          done
