@@ -73,22 +73,22 @@ jobs:
         mkdir ventoy-windows
         unzip ventoy-*windows* -d ventoy-windows
 
-    - uses: actions/upload-artifact@v3.1.3
+    - uses: actions/upload-artifact@v4.0.0
       with:
         name: ventoy-windows
         path: INSTALL/ventoy-windows/
 
-    - uses: actions/upload-artifact@v3.1.3
+    - uses: actions/upload-artifact@v4.0.0
       with:
         name: ventoy-linux
         path: INSTALL/ventoy-linux/
 
-    - uses: actions/upload-artifact@v3.1.3
+    - uses: actions/upload-artifact@v4.0.0
       with:
         name: ventoy-livecd
         path: INSTALL/ventoy-*livecd*
 
-    - uses: actions/upload-artifact@v3.1.3
+    - uses: actions/upload-artifact@v4.0.0
       with:
         name: SHA256SUM
         path: INSTALL/sha256.txt
