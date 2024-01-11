@@ -45,7 +45,7 @@ jobs:
 
       - name: Caching
         id: SDK
-        uses: actions/cache@v3.3.2
+        uses: actions/cache@v3.3.3
         env:
           cache-name: iOS-16.2-SDK
         with:
