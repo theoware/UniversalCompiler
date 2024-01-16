@@ -35,6 +35,7 @@ jobs:
 
       - name: Build
         run: |
+          ./gradlew tasks --all
           ./gradlew :app:release
           find * -name *.apk
           ls -R .
