@@ -15,7 +15,7 @@ jobs:
     steps:
 
     - name: Download Telegram-Monet's source code
-      uses: actions/checkout@v4.1.1
+      uses: actions/checkout@v4.1.2
       with:
         repository: c3r5b8/Telegram-Monet
 

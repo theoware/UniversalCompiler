@@ -14,7 +14,7 @@ jobs:
     steps:
 
     - name: Download the source code
-      uses: actions/checkout@v4.1.1
+      uses: actions/checkout@v4.1.2
       with:
         repository: newhinton/Round-Sync
 
