@@ -1,4 +1,4 @@
-name: uYouPlus
+name: uYouEnhanced
 
 on:
   workflow_dispatch:
@@ -8,13 +8,13 @@ on:
 
 jobs:
   build:
-    name: Build YTLitePlus
+    name: Build uYou
     runs-on: macos-latest
     permissions:
       contents: write
     env:
       THEOS: ${{ github.workspace }}/theos
-      YTLITEPLUS_VERSION: 3.0.3
+      UYOU_VERSION: 3.0.3
       YOUTUBE_VERSION: 19.10.5
       YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/nov19_und3fy_dev/_layouts/15/download.aspx?share=Ef6Fk6kys9dNtW5yehKSFB0BObigpf3AuvPPgwFyI3rMBQ
       BUNDLE_ID: com.google.ios.youtube
@@ -112,7 +112,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4.3.1
         with:
-          name: YTLitePlus_${{ env.YOUTUBE_VERSION }}_${{ env.YTLITEPLUS_VERSION }}
+          name: uYouEnhanced_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
           path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
           if-no-files-found: error
 
@@ -123,8 +123,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
           repository: theoware/Altstore
-          tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.YTLITEPLUS_VERSION }}-(${{ github.run_number }})
-          name: v${{ env.YOUTUBE_VERSION }}-${{ env.YTLITEPLUS_VERSION }}-(${{ github.run_number }})
+          tag_name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
+          name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
           body: |
             ${{ steps.vt.outputs.analysis }}
