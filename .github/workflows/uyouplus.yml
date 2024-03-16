@@ -27,7 +27,7 @@ jobs:
         with:
           path: main
           submodules: recursive
-          repository: arichorn/uYouPlusExtra
+          repository: arichornlover/uYouEnhanced
 
       - name: Install Dependencies
         run: brew install ldid dpkg make
