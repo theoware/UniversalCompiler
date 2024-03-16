@@ -55,7 +55,7 @@ jobs:
       - name: Download iOS 16.2 SDK
         if: steps.SDK.outputs.cache-hit != 'true'
         run: |
-          svn checkout -q https://github.com/arichorn/sdks/trunk/iPhoneOS16.2.sdk
+          svn checkout -q https://github.com/arichorn/sdks/trunk/iPhoneOS17.2.sdk
           mv *.sdk $THEOS/sdks
 
       - name: Setup Theos Jailed
