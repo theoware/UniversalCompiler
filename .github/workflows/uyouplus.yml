@@ -46,16 +46,17 @@ jobs:
       - name: Caching
         id: SDK
         uses: actions/cache@v4.0.1
-        env:
-          cache-name: iOS-16.2-SDK
         with:
           path: theos/sdks/
-          key: iOS-16.2-SDK-${{ runner.os }}
+          key: iOS-17.2-SDK-${{ runner.os }}
 
-      - name: Download iOS 16.2 SDK
+      - name: Download iOS SDK
         if: steps.SDK.outputs.cache-hit != 'true'
         run: |
-          svn checkout -q https://github.com/arichorn/sdks/trunk/iPhoneOS17.2.sdk
+          git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/arichorn/sdks/
+          cd sdks
+          git sparse-checkout set --no-cone iPhoneOS17.2.sdk
+          git checkout
           mv *.sdk $THEOS/sdks
 
       - name: Setup Theos Jailed
