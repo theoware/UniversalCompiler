@@ -20,6 +20,7 @@ name: DxT Build
 on:
   push:
     paths: .github/workflows/dxt.yml
+    branches: main
 
   workflow_dispatch:
     inputs: 

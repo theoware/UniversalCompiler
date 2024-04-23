@@ -20,6 +20,7 @@ name: Cybertron Build
 on:
   push:
     paths: .github/workflows/cybertron.yml
+    branches: main
 
   workflow_dispatch:
 

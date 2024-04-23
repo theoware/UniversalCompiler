@@ -2,6 +2,7 @@ name: Build & upload toolchain
 on:
   push:
     paths: .github/workflows/troton-clang.yml
+    branches: main
   schedule:
     - cron: '0 3 1 * *'
 

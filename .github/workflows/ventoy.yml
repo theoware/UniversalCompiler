@@ -3,6 +3,7 @@ name: Ventoy
 on:
   push:
     paths: .github/workflows/ventoy.yml
+    branches: main
   
   workflow_dispatch:
     inputs: 

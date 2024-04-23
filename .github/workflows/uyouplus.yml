@@ -3,8 +3,8 @@ name: uYouEnhanced
 on:
   workflow_dispatch:
   push:
-    paths:
-      - .github/workflows/uyouplus.yml
+    paths: .github/workflows/uyouplus.yml
+    branches: main
 
 jobs:
   build:

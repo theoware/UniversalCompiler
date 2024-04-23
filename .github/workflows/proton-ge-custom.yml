@@ -3,6 +3,7 @@ name: Proton GE custom
 on:
   push:
     paths: .github/workflows/proton-ge-custom.yml
+    branches: main
   workflow_dispatch:
 
 jobs:

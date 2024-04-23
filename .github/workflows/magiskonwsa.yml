@@ -2,6 +2,7 @@ name: Build WSA
 on:
   push:
     paths: .github/workflows/magiskonwsa.yml
+    branches: main
   workflow_dispatch:
     inputs:
       arch:

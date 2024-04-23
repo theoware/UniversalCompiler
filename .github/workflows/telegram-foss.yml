@@ -3,6 +3,7 @@ name: Telegram-FOSS
 on:
   push:
     paths: .github/workflows/telegram-foss.yml
+    branches: main
 
   workflow_dispatch:
     inputs: 

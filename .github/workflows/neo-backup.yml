@@ -3,6 +3,7 @@ name: Neo-Backup
 on:
   push:
     paths: .github/workflows/neo-backup.yml
+    branches: main
 
   workflow_dispatch:
     inputs: 

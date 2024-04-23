@@ -3,6 +3,7 @@ name: Infinity APK Build and Sign
 on:
   push:
     paths: .github/workflows/infinity.yml
+    branches: main
   workflow_dispatch:
 
 jobs:

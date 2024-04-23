@@ -3,6 +3,7 @@ name: Flashlight-Tiramisu
 on:
   push:
     paths: .github/workflows/flashlight.yml
+    branches: main
 
   workflow_dispatch:
 

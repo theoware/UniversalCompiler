@@ -3,6 +3,7 @@ name: Telegram-Monet
 on:
   push:
     paths: .github/workflows/telegram-monet.yml
+    branches: main
 
   workflow_dispatch:
 

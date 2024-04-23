@@ -5,6 +5,7 @@ on:
     - cron: "0 1 * * 0"
   push:
     paths: .github/workflows/eternity.yml
+    branches: main
   workflow_dispatch:
 
 jobs:

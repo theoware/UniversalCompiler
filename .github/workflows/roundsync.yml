@@ -3,6 +3,7 @@ name: Round-Sync
 on:
   push:
     paths: .github/workflows/roundsync.yml
+    branches: main
 
   workflow_dispatch:
 

@@ -3,6 +3,7 @@ name: Principia
 on:
   push:
     paths: .github/workflows/principia.yml
+    branches: main
 
   workflow_dispatch:
 
