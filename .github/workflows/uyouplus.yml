@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout Main
-        uses: actions/checkout@v4.1.6
+        uses: actions/checkout@v4.1.7
         with:
           path: main
           submodules: recursive
@@ -36,7 +36,7 @@ jobs:
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH 
 
       - name: Setup Theos
-        uses: actions/checkout@v4.1.6
+        uses: actions/checkout@v4.1.7
         with:
           repository: theos/theos
           ref: master
@@ -60,7 +60,7 @@ jobs:
           mv *.sdk $THEOS/sdks
 
       - name: Setup Theos Jailed
-        uses: actions/checkout@v4.1.6
+        uses: actions/checkout@v4.1.7
         with:
           repository: qnblackcat/theos-jailed
           ref: master

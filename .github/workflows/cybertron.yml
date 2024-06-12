@@ -30,19 +30,19 @@ jobs:
     steps:
 
     - name: Checkout kernel
-      uses: actions/checkout@v4.1.6
+      uses: actions/checkout@v4.1.7
       with:
         repository: DhineshCool/cybertron
 
     - name: Checkout clang
-      uses: actions/checkout@v4.1.6
+      uses: actions/checkout@v4.1.7
       with:
         repository: theoware/troton-clang
         path: clang-llvm
         ref: 15
 
     - name: Checkout AnyKernel3
-      uses: actions/checkout@v4.1.6
+      uses: actions/checkout@v4.1.7
       with:
         repository: theoware/AnyKernel3
         path: AnyKernel3

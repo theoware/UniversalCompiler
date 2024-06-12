@@ -20,7 +20,7 @@ jobs:
     steps:
 
     - name: Download neo-backup's source code
-      uses: actions/checkout@v4.1.6
+      uses: actions/checkout@v4.1.7
       with:
         repository: NeoApplications/neo-backup
 
