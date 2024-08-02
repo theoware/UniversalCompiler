@@ -112,7 +112,7 @@ jobs:
           files: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4.3.4
+        uses: actions/upload-artifact@v4.3.5
         with:
           name: uYouEnhanced_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
           path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
