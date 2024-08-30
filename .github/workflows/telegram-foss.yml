@@ -78,7 +78,7 @@ jobs:
       run: ./build_boringssl.sh
 
     - name: Upload the Build Artifact
-      uses: actions/upload-artifact@v4.3.6
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: boringssl
         path: TMessagesProj/jni/boringssl/build
@@ -149,7 +149,7 @@ jobs:
       run: ./patch_ffmpeg.sh
 
     - name: Upload the Build Artifact
-      uses: actions/upload-artifact@v4.3.6
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: ffmpeg
         path: TMessagesProj/jni/ffmpeg/build
@@ -216,7 +216,7 @@ jobs:
       run: ./build_libvpx_clang.sh
 
     - name: Upload the Build Artifact
-      uses: actions/upload-artifact@v4.3.6
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: libvpx
         path: TMessagesProj/jni/libvpx/build
@@ -297,7 +297,7 @@ jobs:
 
     - name: Upload signed APKs
       if: github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v4.3.6
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: signed
         path: |
