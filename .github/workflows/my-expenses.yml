@@ -81,5 +81,5 @@ jobs:
 
       - name: Upload the APK to Telegram
         if: ${{ steps.tag.outputs.tag }}
-        run: curl -F document=@"signed/myExpenses-extern-release-universal-aligned-signed.apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
+        run: curl -F document=@"signed/myExpenses-extern-release-universal-aligned-signed-$(date +'%Y-%m-%d').apk" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}
 
