@@ -45,7 +45,7 @@ jobs:
 
       - name: Caching
         id: SDK
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.1.0
         with:
           path: theos/sdks/
           key: iOS-16.4-SDK-${{ runner.os }}
