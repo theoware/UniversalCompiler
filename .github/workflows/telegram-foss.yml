@@ -36,7 +36,7 @@ jobs:
 
     - name: Cache boringSSL
       id: boringssl-cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.0
       with:
         path: |
           TMessagesProj/jni/boringssl/build/
@@ -108,7 +108,7 @@ jobs:
 
     - name: Cache FFmpeg
       id: ffmpeg-cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.0
       with:
         path: |
           TMessagesProj/jni/ffmpeg/build/
@@ -179,7 +179,7 @@ jobs:
 
     - name: Cache libvpx
       id: libvpx-cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.0
       with:
         path: |
           TMessagesProj/jni/libvpx/build/
