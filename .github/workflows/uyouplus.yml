@@ -29,7 +29,9 @@ jobs:
           repository: qnblackcat/uYouPlus
 
       - name: Install Dependencies
-        run: brew install ldid dpkg make
+        run: |
+          brew install ldid dpkg make swiftlint  # Install SwiftLint to resolve the warning
+          brew install ios-sim                    # Install ios-sim if needed for simulator support
 
       - name: Set PATH environment variable
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH 
@@ -54,7 +56,6 @@ jobs:
         run: |
           git clone -n --depth=1 --filter=tree:0 https://github.com/theos/sdks.git && cd sdks
           git sparse-checkout set --no-cone iPhoneOS16.5.sdk
-
           git checkout
           mv *.sdk $THEOS/sdks
 
@@ -95,7 +96,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/main
           sed -i '' "27s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
-          sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile          
+          sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile
           make package THEOS_PACKAGE_SCHEME=rootless IPA=Payload/YouTube.app FINALPACKAGE=1
           echo "package=$(ls -t packages | head -n1)" >>$GITHUB_OUTPUT
           echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
