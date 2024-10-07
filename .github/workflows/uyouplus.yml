@@ -30,8 +30,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          brew install ldid dpkg make swiftlint  # Install SwiftLint to resolve the warning
-          brew install ios-sim                    # Install ios-sim if needed for simulator support
+          brew install ldid dpkg make swiftlint
 
       - name: Set PATH environment variable
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH 
@@ -97,8 +96,13 @@ jobs:
           cd ${{ github.workspace }}/main
           sed -i '' "27s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
           sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile
+
+          # Add framework linking
+          echo "OTHER_LDFLAGS += -framework Preferences" >> Makefile
+          echo "FRAMEWORK_SEARCH_PATHS += $(THEOS)/sdks/iPhoneOS16.5.sdk/System/Library/Frameworks" >> Makefile
+
           make package THEOS_PACKAGE_SCHEME=rootless IPA=Payload/YouTube.app FINALPACKAGE=1
-          echo "package=$(ls -t packages | head -n1)" >>$GITHUB_OUTPUT
+          echo "package=$(ls -t packages | head -n1)" >> $GITHUB_OUTPUT
           echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
           echo -e "==> \033[1mBundle ID: ${{ env.BUNDLE_ID }}\033[0m"
 
