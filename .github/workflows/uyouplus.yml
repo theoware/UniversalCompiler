@@ -16,8 +16,7 @@ jobs:
       THEOS: ${{ github.workspace }}/theos
       UYOU_VERSION: 3.0.3
       YOUTUBE_VERSION: 19.10.7
-      YOUTUBE_URL: https://armconverter.com/decryptedappstore/download/544007664/com.google.ios.youtube/19.10.7?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEwODQxNjMyLCJpYXQiOjE3MTEyODcxODMsImV4cCI6MTcxMTI5Nzk4MywiYXBwaWQiOjU0NDAwNzY2NCwiYXBwdmVyIjoiMTkuMTAuNyJ9.80kge9KW7UDF9Fvm39Kad4k1UDXnw6ml7I8aGIf-Yrg
-      BUNDLE_ID: com.google.ios.youtube
+      YOUTUBE_URL: https://und3fy-my.sharepoint.com/personal/greenglasst_und3fy_dev/_layouts/15/download.aspx?share=EYVD8zEIxRtCtO5Sqwbd_xIBFr1oX9-9ScP2LD-h2Jdyug
       APP_NAME: YouTube
       CREATE_RELEASE_DRAFT: true
 
