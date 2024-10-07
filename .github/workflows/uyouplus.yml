@@ -27,6 +27,7 @@ jobs:
           path: main
           submodules: recursive
           repository: Balackburn/YTLitePlus
+          fetch-depth: 1
 
       - name: Install Dependencies
         run: brew install ldid dpkg make wget
