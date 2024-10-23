@@ -17,7 +17,7 @@ jobs:
     container: centos:7
     steps:
 
-    - uses: actions/checkout@v4.2.1
+    - uses: actions/checkout@v4.2.2
       with:
         repository: ventoy/Ventoy
         ref: ${{ inputs.ref }} 
