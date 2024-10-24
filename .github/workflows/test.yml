@@ -16,7 +16,7 @@ jobs:
 
       # Step 2: Set up Rclone for remote file operations
       - name: Set up Rclone
-        uses: AnimMouse/setup-rclone@v1.10.1
+        uses: AnimMouse/setup-rclone@v1.10.2
         with:
           rclone_config: ${{ secrets.RCLONE_CONFIG }}
 
