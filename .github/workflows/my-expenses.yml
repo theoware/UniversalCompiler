@@ -24,7 +24,7 @@ jobs:
       - name: Get tag within 7 days
         id: tag
         run: |
-          TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='7 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")
+          TAG=$(git log --tags --simplify-by-decoration --pretty="format:%d" --since='30 days ago' | grep tag | head -n1 | cut -f 3 -d " " | cut -f 1 -d ")")
           echo "TAG=$TAG" >> $GITHUB_OUTPUT
           echo $TAG
 
