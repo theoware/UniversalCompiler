@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build YTLitePlus
+    name: Build uYou
     runs-on: macos-latest
     permissions:
       contents: write
@@ -48,14 +48,14 @@ jobs:
         uses: actions/cache@v4.2.0
         with:
           path: theos/sdks/
-          key: iOS-16.5-SDK-${{ runner.os }}
+          key: iOS-17.5-SDK-${{ runner.os }}
 
       - name: Download iOS SDK
         if: steps.SDK.outputs.cache-hit != 'true'
         run: |
           git clone -n --depth=1 --filter=tree:0 https://github.com/theos/sdks/
           cd sdks
-          git sparse-checkout set --no-cone iPhoneOS16.5.sdk
+          git sparse-checkout set --no-cone iPhoneOS17.5.sdk
           git checkout
           mv *.sdk $THEOS/sdks
 
