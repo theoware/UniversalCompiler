@@ -1,4 +1,4 @@
-name: Build and Release YTLitePlus
+name: Build and Release uYou
 
 on:
   workflow_dispatch:
