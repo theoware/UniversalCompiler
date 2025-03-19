@@ -257,19 +257,19 @@ jobs:
         yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root="${ANDROID_HOME}"
 
     - name: Download the boringssl Build Artifact
-      uses: actions/download-artifact@v4.2.0
+      uses: actions/download-artifact@v4.2.1
       with:
         name: boringssl
         path: TMessagesProj/jni/boringssl/build
 
     - name: Download the FFmpeg Build Artifact
-      uses: actions/download-artifact@v4.2.0
+      uses: actions/download-artifact@v4.2.1
       with:
         name: ffmpeg
         path: TMessagesProj/jni/ffmpeg/build
 
     - name: Download the libvpx Build Artifact
-      uses: actions/download-artifact@v4.2.0
+      uses: actions/download-artifact@v4.2.1
       with:
         name: libvpx
         path: TMessagesProj/jni/libvpx/build
