@@ -43,7 +43,7 @@ jobs:
 
       - name: Setup Java JDK
         if: ${{ steps.tag.outputs.tag }}
-        uses: actions/setup-java@v4.7.0
+        uses: actions/setup-java@v4.7.1
         with:
           java-version: 21
           distribution: oracle
