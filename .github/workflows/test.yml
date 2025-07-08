@@ -10,7 +10,7 @@ jobs:
     steps:
       # Step 1: Cache APT packages to speed up package installation
       - name: Cache APT packages
-        uses: awalsh128/cache-apt-pkgs-action@v1.5.0
+        uses: awalsh128/cache-apt-pkgs-action@v1.5.1
         with:
           packages: ocrmypdf img2pdf tesseract-ocr-deu tesseract-ocr-spa
 
