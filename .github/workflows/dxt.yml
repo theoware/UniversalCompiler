@@ -34,20 +34,20 @@ jobs:
     steps:
 
     - name: Checkout kernel
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v5.0.0
       with:
         repository: DhineshCool/Dxt_payton
         ref: ${{ inputs.tags }} 
 
     - name: Checkout clang
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v5.0.0
       with:
         repository: theoware/troton-clang
         path: clang-llvm
         ref: 13
 
     - name: Checkout AnyKernel3
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v5.0.0
       with:
         repository: theoware/AnyKernel3
         path: AnyKernel3
