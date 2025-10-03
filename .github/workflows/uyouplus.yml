@@ -158,7 +158,7 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v2.3.3
+        uses: softprops/action-gh-release@v2.3.4
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
