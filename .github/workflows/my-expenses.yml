@@ -16,7 +16,7 @@ jobs:
       NDK_CCACHE: ${{ github.workspace }}/ccache
     steps:
       - name: Download My-Expenses's source code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           repository: mtotschnig/MyExpenses
           fetch-depth: 0
@@ -30,7 +30,7 @@ jobs:
 
       - name: Download My-Expenses's source code
         if: ${{ steps.tag.outputs.tag }}
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           repository: theoware/OurExpenses
           token: ${{ secrets.GH_PAT }}
