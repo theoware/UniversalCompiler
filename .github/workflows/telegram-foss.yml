@@ -21,7 +21,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@v5.0.1
+      uses: actions/checkout@v6.0.0
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
@@ -93,7 +93,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@v5.0.1
+      uses: actions/checkout@v6.0.0
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
@@ -164,7 +164,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@v5.0.1
+      uses: actions/checkout@v6.0.0
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
@@ -231,7 +231,7 @@ jobs:
     steps:
 
     - name: Download Telegram-FOSS's source code
-      uses: actions/checkout@v5.0.1
+      uses: actions/checkout@v6.0.0
       with:
         repository: Telegram-FOSS-Team/Telegram-FOSS
         submodules: recursive
