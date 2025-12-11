@@ -42,7 +42,7 @@ jobs:
 
       - name: Cache telegram-bot-api
         id: telegram-bot-api
-        uses: actions/cache@v4.3.0
+        uses: actions/cache@v5.0.0
         with:
           path: build/telegram-bot-api
           key: telegram-bot-api
