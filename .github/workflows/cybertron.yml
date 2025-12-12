@@ -50,7 +50,7 @@ jobs:
 
     - name: Cache ccache
       id: ccache-cache
-      uses: actions/cache@v5.0.0
+      uses: actions/cache@v5.0.1
       with:
         path: ${{ github.workspace }}/.ccache
         key: ccache-${{ GITHUB.WORKFLOW }}-${{ GITHUB.SHA }}
