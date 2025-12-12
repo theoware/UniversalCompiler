@@ -61,7 +61,7 @@ jobs:
         rm cabextract_1.9-1.debian.tar.xz libmspack_0.10.1-1.debian.tar.xz
 
     - name: Upload the binaries
-      uses: actions/upload-artifact@v4.6.2
+      uses: actions/upload-artifact@v6.0.0
       with:
         name: ${{ env.RELEASE_VERSION }}
         path: build/${{ env.RELEASE_VERSION }}
